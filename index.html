@@ -254,6 +254,53 @@ function textOfSlideXml(xml){
   }
   return out;
 }
+/* أشكال الشريحة مع إحداثياتها (مع احتساب تحويلات المجموعات) */
+function shapesOfSlideXml(xml){
+  const doc = new DOMParser().parseFromString(xml,'application/xml');
+  const tree = doc.getElementsByTagName('p:spTree')[0];
+  const out = [];
+  const num = (el,a) => el ? +el.getAttribute(a) : 0;
+  function xfrmOf(node, tag){
+    for(const c of node.children){
+      if(c.tagName === tag || c.tagName.endsWith(':'+tag.split(':').pop())){
+        for(const g of c.children){ if(g.tagName === 'a:xfrm') return g; }
+      }
+    }
+    return null;
+  }
+  function walk(node, tr){
+    for(const el of node.children){
+      const tag = el.tagName;
+      if(tag === 'p:sp' || tag === 'p:graphicFrame' || tag === 'p:pic'){
+        const xf = el.getElementsByTagName('a:xfrm')[0];
+        const off = xf ? xf.getElementsByTagName('a:off')[0] : null;
+        let x = num(off,'x'), y = num(off,'y');
+        const p = tr(x,y);
+        const lines = [];
+        for(const pr of el.getElementsByTagName('a:p')){
+          let t=''; for(const z of pr.getElementsByTagName('a:t')) t += z.textContent;
+          t = t.replace(/\s+/g,' ').trim(); if(t) lines.push(t);
+        }
+        if(lines.length) out.push({x:p.x, y:p.y, lines});
+      } else if(tag === 'p:grpSp'){
+        const xf = xfrmOf(el,'p:grpSpPr') || el.getElementsByTagName('a:xfrm')[0];
+        let f = tr;
+        if(xf){
+          const off=xf.getElementsByTagName('a:off')[0], ext=xf.getElementsByTagName('a:ext')[0],
+                cho=xf.getElementsByTagName('a:chOff')[0], che=xf.getElementsByTagName('a:chExt')[0];
+          const ox=num(off,'x'), oy=num(off,'y'), cx=num(cho,'x'), cy=num(cho,'y');
+          const sx=num(ext,'cx')/Math.max(1,num(che,'cx')), sy=num(ext,'cy')/Math.max(1,num(che,'cy'));
+          const prev = tr;
+          f = (x,y) => prev(ox+(x-cx)*sx, oy+(y-cy)*sy);
+        }
+        walk(el, f);
+      }
+    }
+  }
+  if(tree) walk(tree, (x,y)=>({x,y}));
+  return out;
+}
+
 function cleanLines(lines){
   const seen=new Set(), out=[];
   for(let l of lines){
@@ -322,6 +369,41 @@ function stagesFromStructure(raw, P){
   return null;
 }
 
+const WORDLIST = l => {
+  const parts = l.split(/\s*[-–—/]\s*/).filter(Boolean);
+  return parts.length >= 3 && l.length <= 90 && parts.every(p => p.split(/\s+/).length <= 3);
+};
+const ADDRESS_AR = /^(الآن|سأ|سن|لنصحح|لنقرأ|لنعد|اقرأ|اكتب|خذوا|ارفعوا|لاحظوا|انتبهوا|صححوا|أجيبوا|تابعوا|استعدوا|ضعوا|افتحوا|قوموا|ابحثوا|رددوا|أنجزوا|ناقشوا|اختاروا|أعيدوا|سجلوا|قارنوا|عبروا|حددوا|ركبوا|أكملوا|أتمموا|انطلقوا|تشاوروا|دونوا|هيا|أمامكم|لديكم|مرحبا|أحسنتم|ممتاز|أبنائي|أعزائي|من يذكرنا|من يقوم|هذه هي|هذه مسألتنا|في منازلكم|في المنزل|في منزلي|في هذه الحصة|في حصة اليوم|استعداد لذلك|سيفوز|صفقوا|أهنئكم)/;
+const ADDRESS_FR = /^(Maintenant|Nous allons|Je vais|Prenez|Regardez|[ÉE]coutez|[ÉE]crivez|Corrigez|Lisons|Qui veut|Bonjour|A demain|Vous allez|Voici|C'est|Il\/elle|Les élèves|L'élève)/i;
+
+/* عناصر كل مرحلة كما وردت في شريحة «هيكلة الحصة / Structure de la séance» */
+function structureItems(raw, stages, P){
+  const shapes = raw.shapes || [];
+  for(let i=0;i<raw.length;i++){
+    if(!raw[i].some(l => P.structMarks.some(m => norm(l).includes(norm(m))))) continue;
+    const sh = shapes[i]; if(!sh || sh.length < 4) continue;
+    const nodes = [];
+    sh.forEach(o => o.lines.forEach(t => nodes.push({y:o.y, t})));
+    nodes.sort((a,b)=>a.y-b.y);
+    const res = stages.map(()=>[]);
+    let cur = -1, any = false;
+    for(const n of nodes){
+      const t = n.t.trim();
+      const st = matchStageExact(t, stages);
+      if(st >= 0){ cur = st; continue; }
+      if(cur < 0) continue;
+      if(t.length < 3 || t.length > 110) continue;
+      if(/^[\d\s\/⏱:.\-]+$/.test(t) || DUR_RE.test(t)) continue;
+      if(/^(خاص بالأستاذ|Réservé|R.serv)/i.test(t)) continue;
+      if(/^(الوسائط|Médias|خاص|Jour|اليوم)\b/i.test(t)) continue;
+      if(P.structMarks.some(m => norm(t).includes(norm(m)))) continue;
+      if(!res[cur].includes(t)){ res[cur].push(t); any = true; }
+    }
+    if(any) return res;
+  }
+  return null;
+}
+
 function matchStageExact(line, stages){
   const nl = norm(line);
   if(nl.length < 4 || line.length > 45) return -1;
@@ -344,6 +426,21 @@ function matchStageFuzzy(line, stages){
 function matchStage(line, stages){
   const e = matchStageExact(line, stages);
   return e >= 0 ? e : matchStageFuzzy(line, stages);
+}
+
+function scoreLeaf(l, slideSize, isFr, headerSlide){
+  let s = 0;
+  if(headerSlide) s += 6;
+  if(slideSize <= 3) s += 3;
+  if(/^(لعبة|النشاط|نشاط|قراءة|كتابة|إملاء|تقويم|الواجب|سلوك اليوم|تبصر|تقديم|بناء|حل مسائل|أنشطة|مجال)/.test(l)) s += 3;
+  const n = l.length;
+  if(n >= 14 && n <= 75) s += 2; else if(n > 95) s -= 2;
+  if(WORDLIST(l)) s += 4;
+  if(/\d/.test(l)) s += 1;
+  if((isFr ? ADDRESS_FR : ADDRESS_AR).test(l)) s -= 5;
+  if(/[؟?]\s*$/.test(l)) s -= 1;
+  if(/(لعبة|Jeu|الواجب|Devoirs|المنزل|maison|تبصر)/i.test(l)) s += 2;
+  return s;
 }
 
 function analyse(raw, subjectKey){
@@ -413,7 +510,7 @@ function analyse(raw, subjectKey){
     title: st.title,
     dur:   st.dur || (P.stages[i] ? P.stages[i].dur : ''),
     names: (P.stages.find(x => norm(x.title) === norm(st.title)) || {names:[]}).names.concat([st.title]),
-    items: []
+    items: [], scores: []
   }));
 
   /* --- أسطر شريط التنقل: عناوين مراحل ترد مرفوقة بعناوين أخرى في الشريحة نفسها --- */
@@ -461,10 +558,12 @@ function analyse(raw, subjectKey){
     else if(fz.size >= 2) continue;
     if(i < startIdx) continue;
     if(cur < 0) cur = 0;
-    for(const l of cleanLines(s2)){
+    const cl = cleanLines(s2);
+    const headerSlide = (ex.size === 1 || fz.size === 1) && cl.length <= 6;
+    for(const l of cl){
       if(matchStage(l, stages) >= 0) continue;
       const leaf = pickLeaf(l, isFr);
-      if(leaf && !used.has(leaf)){ used.add(leaf); stages[cur].items.push(leaf); }
+      if(leaf && !used.has(leaf)){ used.add(leaf); stages[cur].items.push(leaf); stages[cur].scores.push(scoreLeaf(leaf, cl.length, isFr, headerSlide)); }
     }
   }
 
@@ -486,11 +585,27 @@ function analyse(raw, subjectKey){
     let acc = 0; const bounds = w.map(x => { acc += x; return Math.round(blocks.length*acc/tot); });
     blocks.forEach((leaves,idx) => {
       let st = 0; while(st < bounds.length-1 && idx >= bounds[st]) st++;
-      leaves.forEach(l => stages[st].items.push(l));
+      leaves.forEach(l => { stages[st].items.push(l); stages[st].scores.push(scoreLeaf(l, leaves.length, isFr, false)); });
     });
   }
 
-  stages.forEach(st => st.items = st.items.slice(0,7));
+  /* --- التجميع النهائي: عناصر شريحة الهيكلة هي الأساس --- */
+  const si = structureItems(raw, stages, P);
+  stages.forEach((st,i) => {
+    const body = st.items.map((t,k) => ({t, s: st.scores[k]||0, k}));
+    const vocabStage = i === 0 || /(معجم|vocab)/i.test(st.title);
+    const words = vocabStage ? body.filter(o => WORDLIST(o.t)).slice(0,2).map(o => o.t) : [];
+    if(si && si[i] && si[i].length){
+      const extra = words.filter(t => !si[i].some(y => norm(y) === norm(t)));
+      st.items = si[i].concat(extra).slice(0,7);
+    } else {
+      body.sort((a,b) => b.s - a.s || a.k - b.k);
+      const keep = new Set(body.slice(0, si ? 4 : 6).map(o => o.k));
+      st.items = st.items.filter((_,k) => keep.has(k));
+    }
+    st.items = st.items.map(t => t.replace(/[؛;:\s]+$/,'').trim()).filter(Boolean);
+    delete st.scores;
+  });
 
   return {
     subject: subjectKey, level, masar, unit, hissa,
@@ -508,11 +623,13 @@ async function readPptx(file){
   const names = Object.keys(zip.files)
     .filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n))
     .sort((a,b)=> (+a.match(/\d+/)[0]) - (+b.match(/\d+/)[0]));
-  const raw = [];
+  const raw = [], shapes = [];
   for(const n of names){
-    raw.push(textOfSlideXml(await zip.file(n).async('string'))
-      .map(l => l.replace(/[‏‎]/g,'').replace(/\s+/g,' ').trim()).filter(Boolean));
+    const xml = await zip.file(n).async('string');
+    raw.push(textOfSlideXml(xml).map(l => l.replace(/[\u200f\u200e]/g,'').replace(/\s+/g,' ').trim()).filter(Boolean));
+    shapes.push(shapesOfSlideXml(xml));
   }
+  raw.shapes = shapes;
   return raw;
 }
 
