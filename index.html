@@ -10,10 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root{
-  --ink:#111; --soft:#555; --line:#d9d9d9; --bg:#f4f5f7; --card:#fff;
-  --accent:#111; --band:#ececec;
-}
+:root{--ink:#111;--soft:#555;--line:#d9d9d9;--bg:#f4f5f7;--card:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Cairo,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
 header{background:#111;color:#fff;padding:18px 20px}
@@ -23,7 +20,7 @@ header p{font-size:12.5px;color:#bbb;margin-top:3px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
 .card h2{font-size:15.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .card h2 .n{background:#111;color:#fff;border-radius:50%;width:24px;height:24px;display:grid;place-items:center;font-size:12.5px}
-.drop{border:2px dashed #aaa;border-radius:12px;padding:28px 16px;text-align:center;background:#fafafa;cursor:pointer;transition:.15s}
+.drop{border:2px dashed #aaa;border-radius:12px;padding:26px 16px;text-align:center;background:#fafafa;cursor:pointer;transition:.15s}
 .drop.on{background:#eee;border-color:#111}
 .drop b{display:block;font-size:15px;margin-bottom:4px}
 .drop span{font-size:12.5px;color:var(--soft)}
@@ -34,44 +31,42 @@ input[type=file]{display:none}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
 label{display:block;font-size:12px;font-weight:700;color:var(--soft);margin-bottom:3px}
-input[type=text]{width:100%;font-family:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff}
+input[type=text],select{width:100%;font-family:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff}
 textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;resize:vertical;line-height:1.7;background:#fff}
 .branch{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;background:#fcfcfc}
 .branch .head{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
 .branch .head input[type=text]{flex:1;min-width:140px;font-weight:700}
-.branch .head .dur{width:90px;flex:none}
+.branch .head .dur{width:95px;flex:none}
 .hint{font-size:11.5px;color:var(--soft);margin-top:4px}
 .file-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .tab{font-family:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;cursor:pointer}
 .tab.sel{background:#111;color:#fff;border-color:#111}
-.empty{color:var(--soft);font-size:13px}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;background:#eee;border-radius:999px;padding:2px 10px;margin-inline-start:6px}
 
-/* ===== mind map page ===== */
+/* ===== صفحة الخطاطة ===== */
 #out{display:flex;flex-direction:column;gap:18px;align-items:center}
-.page{position:relative;width:794px;height:1123px;background:#fff;overflow:hidden;color:#111;
-      box-shadow:0 2px 14px rgba(0,0,0,.14);flex:none}
+.page{position:relative;width:794px;height:1123px;background:#fff;overflow:hidden;color:#111;box-shadow:0 2px 14px rgba(0,0,0,.14);flex:none}
 .page .hdr{position:absolute;top:18px;left:0;right:0;text-align:center;font-size:13px;color:#555}
 .page .hdr b{color:#111}
-.page .info{position:absolute;top:40px;left:14px;right:14px;display:flex;justify-content:space-between;
-      font-size:12.5px;border-top:1px solid #999;border-bottom:1px solid #999;padding:3px 10px}
+.page .info{position:absolute;top:40px;left:14px;right:14px;display:flex;justify-content:space-between;font-size:12.5px;border-top:1px solid #999;border-bottom:1px solid #999;padding:3px 10px}
 .page .info b{font-weight:800}
 .page svg.cn{position:absolute;inset:0;width:794px;height:1123px;z-index:0}
-.page .root{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;background:#111;color:#fff;
-      border-radius:22px;padding:14px 12px;text-align:center;width:176px;box-shadow:0 0 0 5px #fff,0 0 0 7px #111}
-.page .root .m{font-size:28px;font-weight:800;line-height:1.15}
-.page .root .s{font-size:14px;font-weight:700;margin-top:4px;color:#eee}
+.page .root{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;background:#111;color:#fff;border-radius:22px;padding:14px 12px;text-align:center;width:186px;box-shadow:0 0 0 5px #fff,0 0 0 7px #111}
+.page .root .m{font-size:26px;font-weight:800;line-height:1.15}
+.page .root .s{font-size:13.5px;font-weight:700;margin-top:4px;color:#eee}
 .page .root .d{font-size:12px;color:#ccc;margin-top:2px}
-.page .col{position:absolute;top:82px;bottom:40px;width:266px;display:flex;flex-direction:column;justify-content:space-around;z-index:2}
+.page .col{position:absolute;top:82px;bottom:40px;width:262px;display:flex;flex-direction:column;justify-content:space-around;z-index:2}
 .page .col.r{right:14px}
 .page .col.l{left:14px}
 .page .br{display:flex;flex-direction:column;gap:6px}
-.page .bh{background:#3a3a3a;color:#fff;font-weight:700;font-size:14.5px;padding:5px 16px;border-radius:999px;
-      display:inline-flex;gap:10px;align-items:center;max-width:100%}
+.page .bh{background:#3a3a3a;color:#fff;font-weight:700;font-size:14px;padding:5px 15px;border-radius:999px;display:inline-flex;gap:9px;align-items:center;max-width:100%}
 .page .col.r .bh{align-self:flex-start}
 .page .col.l .bh{align-self:flex-end}
-.page .bh .t{white-space:nowrap;background:#fff;color:#111;border-radius:999px;padding:0 8px;font-size:12px;font-weight:800}
+.page[dir=ltr] .col.r .bh{align-self:flex-end}
+.page[dir=ltr] .col.l .bh{align-self:flex-start}
+.page .bh .t{white-space:nowrap;background:#fff;color:#111;border-radius:999px;padding:0 8px;font-size:11.5px;font-weight:800}
 .page .leaves{display:flex;flex-direction:column;gap:5px}
-.page .lf{background:#fff;border:1.4px solid #111;border-radius:9px;padding:4px 10px;font-size:12.8px;line-height:1.45;font-weight:600}
+.page .lf{background:#fff;border:1.4px solid #111;border-radius:9px;padding:4px 10px;font-size:12.5px;line-height:1.45;font-weight:600}
 .page .col.r .lf{margin-right:30px}
 .page .col.l .lf{margin-left:30px}
 .page .foot{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:10.5px;color:#777}
@@ -84,25 +79,35 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1
   .page{box-shadow:none;page-break-after:always;break-after:page}
   @page{size:A4 portrait;margin:0}
 }
-@media (max-width:860px){
-  .page{transform:scale(.45);transform-origin:top center;margin-bottom:-600px}
-}
+@media (max-width:860px){ .page{transform:scale(.45);transform-origin:top center;margin-bottom:-600px} }
 </style>
 </head>
 <body>
 
 <header>
   <h1>مولّد الخطاطات الذهنية من عروض PPTX</h1>
-  <p>ارفع عروض الحصص، يستخرج الموقع محتواها ويبني خطاطة ذهنية جاهزة للطباعة — كل المعالجة تتم داخل متصفحك.</p>
+  <p>العربية · الرياضيات · الفرنسية — ارفع عرض الحصة فيبني الموقع خطاطة ذهنية جاهزة للطباعة. كل المعالجة داخل متصفحك.</p>
 </header>
 
 <div class="wrap">
 
   <div class="card">
-    <h2><span class="n">1</span> رفع العروض</h2>
+    <h2><span class="n">1</span> المادة ورفع العروض</h2>
+    <div class="meta">
+      <div>
+        <label>المادة</label>
+        <select id="subject">
+          <option value="auto">تحديد تلقائي</option>
+          <option value="ar">اللغة العربية</option>
+          <option value="math">الرياضيات</option>
+          <option value="fr">الفرنسية (Français)</option>
+        </select>
+      </div>
+      <div><label>المستوى</label><input type="text" id="gLevel" placeholder="6"></div>
+    </div>
     <div class="drop" id="drop">
       <b>اسحب ملفات .pptx هنا أو انقر للاختيار</b>
-      <span>يمكن رفع عدة ملفات دفعة واحدة (مسار 1، مسار 2، مسار 3...)</span>
+      <span>يمكن رفع عدة ملفات دفعة واحدة (مسار 1، مسار 2، مسار 3…)</span>
     </div>
     <input type="file" id="file" accept=".pptx" multiple>
     <div class="hint">لا يُرفع أي ملف إلى أي خادم: القراءة والتحليل يتمّان محليًّا في المتصفح.</div>
@@ -113,8 +118,6 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1
     <div class="meta">
       <div><label>الأستاذ(ة)</label><input type="text" id="gTeacher" placeholder="محمد العلوي"></div>
       <div><label>المدرسة</label><input type="text" id="gSchool" placeholder="محمد الحنصالي"></div>
-      <div><label>سطر علوي</label><input type="text" id="gTop" value="برنامج دعم التعلمات الأساس — اللغة العربية — المستوى 6"></div>
-      <div><label>سطر سفلي</label><input type="text" id="gFoot" value="افتتاح الحصة ← أنشطة قرائية ← أنشطة كتابية ← اختتام الحصة"></div>
     </div>
   </div>
 
@@ -138,178 +141,416 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1
 </div>
 
 <script>
-/* =========================================================
-   1) استخراج النص من ملف pptx
-   ========================================================= */
+/* ============================================================
+   ملفات تعريف المواد
+   ============================================================ */
+const PROFILES = {
+  ar: {
+    label:'اللغة العربية', dir:'rtl',
+    goalsTitle:'الأهداف', toolsTitle:'الوسائل',
+    rootPrefix:'المسار', unitPrefix:'لبنة', sessionWord:'الحصة', durWord:'المدة',
+    lblTeacher:'الأستاذ', lblSchool:'المدرسة', lblDate:'التاريخ',
+    top: lv => `برنامج دعم التعلمات الأساس — اللغة العربية${lv?' — المستوى '+lv:''} — خطاطة ذهنية للحصة`,
+    sep:' ← ', totalDur:'70 د',
+    stages:[
+      {title:'افتتاح الحصة', dur:'15 د', names:['افتتاح الحصة','وضعية الانطلاق','التهيئة']},
+      {title:'أنشطة قرائية', dur:'30 د', names:['أنشطة قرائية','النشاط الرئيسي','القراءة والفهم']},
+      {title:'أنشطة كتابية', dur:'15 د', names:['أنشطة كتابية','الممارسة المستقلة','الكتابة']},
+      {title:'اختتام الحصة', dur:'10 د', names:['اختتام الحصة','التقويم','تبصر الحصة']}
+    ],
+    goalMarks:['عند نهاية الحصة','قادرين على'],
+    toolMarks:['العدة اللازمة للحصة','الوسائل','العدة اللازمة'],
+    structMarks:['هيكلة الحصة','سير الحصة'],
+    stopMarks:['ملاحق'],
+    cover:{ masar:/^المسار\s*[:\/]?\s*(\d+)/, masarWord:'المسار',
+            unit:/^لبنة\s*[:\/]?\s*(.+)$/, session:/^الحصة\s*[:\/]?\s*([\d\s\/]+)$/,
+            level:/^المستوى\s*[:\/]?\s*(\d+)/, levelWord:'المستوى' },
+    split:/[؛]/
+  },
+  math: {
+    label:'الرياضيات', dir:'rtl',
+    goalsTitle:'الأهداف', toolsTitle:'الوسائل',
+    rootPrefix:'المسار', unitPrefix:'لبنة', sessionWord:'الحصة', durWord:'المدة',
+    lblTeacher:'الأستاذ', lblSchool:'المدرسة', lblDate:'التاريخ',
+    top: lv => `برنامج دعم التعلمات الأساس — الرياضيات${lv?' — المستوى '+lv:''} — خطاطة ذهنية للحصة`,
+    sep:' ← ', totalDur:'70 د',
+    stages:[
+      {title:'افتتاح الحصة', dur:'10 د', names:['افتتاح الحصة','وضعية الانطلاق','الحساب الذهني','التهيئة']},
+      {title:'النشاط الرئيسي', dur:'30 د', names:['النشاط الرئيسي','بناء وترييض','البناء والترييض','بناء المفهوم']},
+      {title:'الممارسة المستقلة', dur:'20 د', names:['الممارسة المستقلة','ممارسة مستقلة','التمرن','التطبيق']},
+      {title:'اختتام الحصة', dur:'10 د', names:['اختتام الحصة','التقويم','تبصر الحصة']}
+    ],
+    goalMarks:['عند نهاية الحصة','قادرين على'],
+    toolMarks:['الوسائل','العدة اللازمة للحصة','العدة اللازمة'],
+    structMarks:['سير الحصة','هيكلة الحصة'],
+    stopMarks:['ملاحق'],
+    cover:{ masar:/^المسار\s*[:\/]?\s*(\d+)/, masarWord:'المسار',
+            unit:/^لبنة\s*[:\/]?\s*(.+)$/, session:/^الحصة\s*[:\/]?\s*([\d\s\/]+)$/,
+            level:/^المستوى\s*[:\/]?\s*(\d+)/, levelWord:'المستوى' },
+    split:/[؛]/
+  },
+  fr: {
+    label:'Français', dir:'ltr',
+    goalsTitle:'Objectifs', toolsTitle:'Supports',
+    rootPrefix:'Parcours', unitPrefix:'', sessionWord:'Séance', durWord:'Durée',
+    lblTeacher:'Enseignant(e)', lblSchool:'École', lblDate:'Date',
+    top: lv => `Programme de remédiation intensive — Français${lv?' — Niveau '+lv:''} — Carte mentale de la séance`,
+    sep:' → ', totalDur:'70 min',
+    stages:[
+      {title:"Rituel d'ouverture", dur:'10 min', names:["Rituel d'ouverture",'Ouverture','Rituel','Mise en train','Démarrage']},
+      {title:'Vocabulaire',        dur:'30 min', names:['Vocabulaire','Compréhension orale','Découverte','Rebrassage du vocabulaire']},
+      {title:'Lecture',            dur:'20 min', names:['Lecture','Écriture','Entraînement','Production écrite','Rebrassage de la lecture']},
+      {title:'Clôture',            dur:'10 min', names:['Clôture','Bilan','Évaluation','Synthèse','Réflexions']}
+    ],
+    goalMarks:['seront capables','la fin de la séance','devraient être capables'],
+    toolMarks:['Matériel technique','Matériel didactique','Matériel','Supports'],
+    structMarks:['Structure de la séance'],
+    stopMarks:['Annexes','Annexe'],
+    cover:{ masar:/^Parcours\s*[:\/]?\s*(\d+)/i, masarWord:'Parcours',
+            unit:/^(Palier\s*\d+.*)$/i, session:/^S[ée]ance\s*[:\/]?\s*([\d\s\/]+)$/i,
+            level:/^Niveau\s*[:\/]?\s*(\d+)/i, levelWord:'Niveau' },
+    split:/[;]/
+  }
+};
+
 const NOISE = [
-  'الوسائط','ايقونات أخرى','ايقونات اخرى','خاص بالأستاذ','خاص بالأستاذ(ة)','هيكلة الحصة','هيكلة المسار',
-  'اللغة العربية','المستوى','المسار','برنامج دعم التعلمات الأساس','إلى الحصة القادمة','سير الحصة',
+  'الوسائط','ايقونات أخرى','ايقونات اخرى','خاص بالأستاذ','خاص بالأستاذ(ة)','هيكلة الحصة','هيكلة المسار','سير الحصة',
+  'اللغة العربية','الرياضيات','المستوى','المسار','برنامج دعم التعلمات الأساس','إلى الحصة القادمة','ملاحق',
   'توجيات الأستاذ','توجيهات الأستاذ','عمل ثنائي','تعيين تلميذ للاجابة','تعيين تلميذ للإجابة','تتبع العمل الفردي',
-  'ألعاب','إسناد وتغذية راجعة','عمل في مجموعات','نمذجة','نمذجة موجهة بالشرائح','نمذجة على السبورة','عرض فيديو',
+  'ألعاب','إسناد وتغذية راجعة','عمل في مجموعات','نمذجة','نمذجة موجهة بالشرائح','نمذجة على السبورة','عرض فيديو','مناولة',
   'أنشطة على الكراسة','نشاط على الألواح','الأدوات المدرسية','تدبير السلوك','عمل فردي','الوسائل','الكلمة','جملة',
-  'المذكرة اليومية','الخطاطات الذهنية','الإعداد المادي','النشاط الرئيسي','الممارسة المستقلة','القراءة والفهم','الكتابة'
+  'المذكرة اليومية','النشاط الرئيسي','الممارسة المستقلة','القراءة والفهم','الكتابة',
+  'Médias','Modelage','Jeu','Jeux','Travail en binôme','Travail en groupes','Travail individuel','Suivi et rétroaction',
+  'Désigner un élève pour répondre','Gestion du comportement','Le matériel scolaire','Activités sur le cahier',
+  'Activité sur les ardoises','Structure de la séance','Recommandations générales','Matériel technique','Matériel didactique',
+  'Annexes','Français','Niveau','Parcours','Programme de remédiation intensive'
 ];
-const SECTIONS = [
-  {key:'open',  names:['افتتاح الحصة'],                         title:'افتتاح الحصة', dur:'15 د'},
-  {key:'read',  names:['أنشطة قرائية','النشاط الرئيسي'],        title:'أنشطة قرائية', dur:'30 د'},
-  {key:'write', names:['أنشطة كتابية','الممارسة المستقلة'],     title:'أنشطة كتابية', dur:'15 د'},
-  {key:'close', names:['اختتام الحصة'],                         title:'اختتام الحصة', dur:'10 د'}
-];
-const ASIDE = /^(يقدم|يتنقل|يسجل|يقوم|يعرض|يطلب|يدعو|يحرص|يتم|يشير|ينشئ|يستهدف|يوضح|يمكن|تقبل|تقدم|تمنح|يعلن|يقرأ الأستاذ|يضع)/;
+const ASIDE_AR = /^(يقدم|يتنقل|يسجل|يقوم|يعرض|يطلب|يدعو|يحرص|يتم|يشير|ينشئ|يستهدف|يوضح|يمكن|تقبل|تقدم|تمنح|يعلن|يكتب|يقسم|يوزيع|يوجه|يراقب|يأخذ|يربط|ينظم|يتابع|يملأ|يملي|تناقش|يستمر)/;
+const ASIDE_FR = /^(L'enseignant|L’enseignant|Le professeur|L'enseignante|Réservé|Diffusion|Étape|Etape|Support\s*:|Déroulement)/i;
+
+/* ============================================================
+   أدوات نصية
+   ============================================================ */
+function norm(s){
+  return (s||'').toString()
+    .normalize('NFD').replace(/[̀-ًͯ-ْٰ]/g,'')
+    .replace(/[ـ]/g,'')
+    .replace(/[إأآٱا]/g,'ا').replace(/[ىي]/g,'ي').replace(/ة/g,'ه')
+    .toLowerCase()
+    .replace(/[’'`´«»"“”.,:;!?()\[\]\-–—/\\]/g,' ')
+    .replace(/\b(al|el)\b/g,' ')
+    .replace(/\bال/g,'')
+    .replace(/\s+/g,' ').trim();
+}
+const DUR_RE = /^\s*(\d{1,3})\s*(min|mn|minutes?|د|دق|دقيقة|دقائق)\s*$/i;
 
 function textOfSlideXml(xml){
   const doc = new DOMParser().parseFromString(xml,'application/xml');
-  const paras = doc.getElementsByTagName('a:p');
   const out = [];
-  for(const p of paras){
-    let s = '';
-    for(const t of p.getElementsByTagName('a:t')) s += t.textContent;
+  for(const p of doc.getElementsByTagName('a:p')){
+    let s=''; for(const t of p.getElementsByTagName('a:t')) s += t.textContent;
     s = s.replace(/\s+/g,' ').trim();
     if(s) out.push(s);
   }
   return out;
 }
 function cleanLines(lines){
-  const seen = new Set(); const out = [];
+  const seen=new Set(), out=[];
   for(let l of lines){
     l = l.replace(/[‏‎]/g,'').trim();
-    if(!l) continue;
-    if(/^[\d\s\/\.\-–—:]+$/.test(l)) continue;         // أرقام وشرائط التنقل
-    if(/^اليوم\s*\d+$/.test(l)) continue;
+    if(!l || l.length<3) continue;
+    if(/^[\d\s\/\.\-–—:⏱]+$/.test(l)) continue;
+    if(/^(اليوم|Jour)\s*\d+$/i.test(l)) continue;
+    if(DUR_RE.test(l)) continue;
     if(NOISE.includes(l)) continue;
-    if(l.length < 3) continue;
     if(seen.has(l)) continue;
     seen.add(l); out.push(l);
   }
   return out;
 }
-function sectionOf(lines){
-  for(const line of lines){
-    for(const s of SECTIONS){
-      if(s.names.some(n => line === n || line.startsWith(n))) return s.key;
-    }
-  }
-  return null;
-}
-function pickLeaf(l){
-  if(/^\(.*\)$/.test(l)) return null;                  // ملاحظة موجهة للأستاذ
-  if(ASIDE.test(l) && l.length < 160) return null;
-  if(/^(مرحبا|أحسنتم|ممتاز|جيد|صححوا|لنصحح|انتهى الوقت|الآن دوركم|أنهينا)/.test(l) && l.length < 60) return null;
+function pickLeaf(l, isFr){
+  if(/^\(.*\)$/.test(l)) return null;
+  const aside = isFr ? ASIDE_FR : ASIDE_AR;
+  if(aside.test(l) && l.length < 170) return null;
+  if(!isFr && /^(مرحبا|أحسنتم|ممتاز|جيد|صححوا|لنصحح|انتهى الوقت|الآن دوركم|أنهينا|ارفعوا|انتبهوا|خذوا|استعدوا)/.test(l) && l.length<70) return null;
+  if(isFr && /^(Bonjour|Corrigez|Bravo|Maintenant|Prenez|Regardez|Écoutez|Ecoutez|Qui veut|A demain)/i.test(l) && l.length<70) return null;
   l = l.replace(/^[\-–•\s]+/,'').trim();
   if(l.length < 12) return null;
-  if(l.length > 120) l = l.slice(0,117).trim() + '…';
+  if(l.length > 95) l = l.slice(0,92).trim()+'…';
   return l;
 }
 
-async function parsePptx(file){
-  const zip = await JSZip.loadAsync(file);
-  const names = Object.keys(zip.files)
-    .filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n))
-    .sort((a,b)=> (+a.match(/\d+/)[0]) - (+b.match(/\d+/)[0]));
+/* ============================================================
+   التحليل
+   ============================================================ */
+function detectSubject(raw){
+  const all = raw.flat().join(' ');
+  const latin = (all.match(/[A-Za-zÀ-ÿ]/g)||[]).length;
+  const arabic = (all.match(/[؀-ۿ]/g)||[]).length;
+  if(latin > arabic) return 'fr';
+  if(/الرياضيات|جداول الضرب|الحساب الذهني|حل مسائل/.test(all)) return 'math';
+  return 'ar';
+}
 
-  const raw = [];   // سطور كل شريحة كما هي (بعد تنظيف بسيط)
-  for(const n of names){
-    const lines = textOfSlideXml(await zip.file(n).async('string'))
-      .map(l => l.replace(/[‏‎]/g,'').replace(/\s+/g,' ').trim())
-      .filter(Boolean);
-    raw.push(lines);
-  }
-
-  /* ---------- بيانات العنوان ---------- */
-  const head = (raw[0]||[]);
-  let masar = '', labna = '', hissa = '';
-  head.forEach((l,i) => {
-    if(l === 'المسار' && /^\d$/.test(head[i+1]||'')) masar = head[i+1];
-    const m1 = l.match(/^المسار\s*(\d)\s*$/); if(m1) masar = m1[1];
-    const m2 = l.match(/^لبنة\s+(.+)$/);      if(m2) labna = m2[1].trim();
-    const m3 = l.match(/^الحصة\s*([\d\s\/]+)$/); if(m3) hissa = m3[1].replace(/\s/g,'');
-  });
-
-  /* ---------- الأهداف ---------- */
-  const goals = [];
+/* مراحل الحصة من شريحة «هيكلة الحصة / Structure de la séance» */
+function stagesFromStructure(raw, P){
   for(const s of raw){
-    if(s.some(l => l.includes('عند نهاية الحصة') || l.includes('قادرين على'))){
-      for(const l of s){
-        if(l.includes('عند نهاية الحصة') || l.includes('قادرين على')) continue;
-        if(NOISE.includes(l) || l.length < 10) continue;
-        l.split(/[؛]/).map(x => x.replace(/^[\-–•\s\.]+/,'').replace(/[\.؛]$/,'').trim())
-         .filter(x => x.length > 8)
-         .forEach(x => { if(goals.length < 5 && !goals.includes(x)) goals.push(x); });
+    if(!s.some(l => P.structMarks.some(m => norm(l).includes(norm(m))))) continue;
+
+    // 1) الاسم الذي يسبق رمز المؤقّت ⏱
+    const byClock = [];
+    s.forEach((l,i) => {
+      if(/⏱/.test(l)){
+        const name = (s[i-1]||'').trim();
+        const dur  = (s[i+1]||'').trim();
+        if(name && !/^\d+$/.test(name) && !DUR_RE.test(name))
+          byClock.push({title:name, dur: DUR_RE.test(dur) ? dur : ''});
       }
-      if(goals.length) break;
+    });
+    if(byClock.length >= 3) return byClock.slice(0,5);
+
+    // 2) أسماء المراحل المعروفة الواردة في الشريحة بترتيبها
+    const found = [];
+    for(const l of s){
+      for(const st of P.stages){
+        if(st.names.some(n => norm(n) === norm(l)) && !found.some(f => f.title === l))
+          found.push({title:l, dur: st.dur});
+      }
+    }
+    if(found.length >= 3) return found.slice(0,5);
+  }
+  return null;
+}
+
+function matchStageExact(line, stages){
+  const nl = norm(line);
+  if(nl.length < 4 || line.length > 45) return -1;
+  for(let i=0;i<stages.length;i++)
+    for(const n of stages[i].names) if(norm(n) === nl) return i;
+  return -1;
+}
+function matchStageFuzzy(line, stages){
+  const nl = norm(line);
+  if(nl.length < 4 || line.length > 45) return -1;
+  for(let i=0;i<stages.length;i++){
+    for(const n of stages[i].names){
+      const nn = norm(n);
+      if(nl.length >= 5 && nn.includes(nl)) return i;                      // العنوان أطول من السطر
+      if(nn.length >= 8 && nl.includes(nn) && nl.length <= nn.length+18) return i;
     }
   }
+  return -1;
+}
+function matchStage(line, stages){
+  const e = matchStageExact(line, stages);
+  return e >= 0 ? e : matchStageFuzzy(line, stages);
+}
 
-  /* ---------- الوسائل / العدة ---------- */
+function analyse(raw, subjectKey){
+  const P = PROFILES[subjectKey];
+  const isFr = subjectKey === 'fr';
+  const flat = raw.flat();
+
+  /* --- بيانات الغلاف --- */
+  let masar='', unit='', hissa='', level='';
+  const head = (raw[0]||[]).concat(raw[1]||[]);
+  head.forEach((l,i) => {
+    let m;
+    if((m = l.match(P.cover.masar)))   masar = m[1];
+    else if(norm(l) === norm(P.cover.masarWord) && /^\d+$/.test((head[i+1]||'').trim())) masar = head[i+1].trim();
+    if((m = l.match(P.cover.level)))   level = m[1];
+    else if(norm(l) === norm(P.cover.levelWord) && /^\d+$/.test((head[i+1]||'').trim())) level = head[i+1].trim();
+    if((m = l.match(P.cover.unit))){
+      unit = m[1].trim();
+      const nx = (head[i+1]||'').trim();
+      if(isFr && nx && nx.length <= 25 && !/^\d/.test(nx) && !/^S[ée]ance/i.test(nx)) unit += ' · ' + nx;
+    }
+    if((m = l.match(P.cover.session))) hissa = m[1].replace(/\s/g,'');
+  });
+
+  /* --- الأهداف --- */
+  const goals = [];
+  for(const s of raw){
+    if(!s.some(l => P.goalMarks.some(g => l.includes(g)))) continue;
+    for(const l of s){
+      if(P.goalMarks.some(g => l.includes(g))) continue;
+      if(NOISE.includes(l) || l.length < 10) continue;
+      if(/^(Réservé|R.serv.|خاص بالأستاذ)/i.test(l)) continue;
+      l.split(P.split).map(x => x.replace(/^[\-–•\s\.]+/,'').replace(/[\.؛;]$/,'').trim())
+       .filter(x => x.length > 8)
+       .forEach(x => { if(goals.length < 5 && !goals.includes(x)) goals.push(x.length>95 ? x.slice(0,92)+'…' : x); });
+    }
+    if(goals.length) break;
+  }
+
+  /* --- الوسائل --- */
   const tools = [];
   for(const s of raw){
-    const hit = s.some(l => l.includes('العدة اللازمة للحصة') || l === 'الوسائل');
-    if(!hit) continue;
+    if(!s.some(l => P.toolMarks.some(t => norm(l) === norm(t)))) continue;
     for(const l of s){
-      if(l.includes('العدة اللازمة') || l === 'الوسائل') continue;
+      if(P.toolMarks.some(t => norm(l) === norm(t))) continue;
       if(l.length > 30 || l.length < 3) continue;
-      if(/^[\d\s\/]+$/.test(l)) continue;
-      if(l.startsWith('خاص بالأستاذ') || l === 'هيكلة الحصة' || l === 'هيكلة المسار') continue;
-      if(SECTIONS.some(sec => sec.names.includes(l))) continue;
-      if(!tools.includes(l) && tools.length < 6) tools.push(l);
+      if(/^[\d\s\/⏱]+$/.test(l) || DUR_RE.test(l)) continue;
+      if(l.startsWith('خاص بالأستاذ') || NOISE.includes(l)) continue;
+      if(!tools.includes(l) && tools.length < 7) tools.push(l);
     }
     if(tools.length) break;
   }
 
-  /* ---------- توزيع الشرائح على المراحل ---------- */
-  const buckets = {open:[],read:[],write:[],close:[]};
-  const used = new Set();
-  let cur = null;
-  for(const s of raw){
-    // شرائح التنقل / الهيكلة: تحمل أكثر من عنوان مرحلة ← تُتجاهل كليا
-    const marks = new Set();
-    for(const l of s) for(const sec of SECTIONS) if(sec.names.includes(l)) marks.add(sec.key);
-    if(marks.size >= 2) continue;
-    if(marks.size === 1) cur = [...marks][0];
-    if(!cur) continue;
+  /* --- المراحل --- */
+  let detected = stagesFromStructure(raw, P);
+  if(detected){                                   // توحيد: مرحلة واحدة لكل مرحلة من ملف المادة
+    const byIdx = new Map();
+    detected.forEach(st => {
+      const i = matchStage(st.title, P.stages.map(x => ({names:x.names.concat([x.title])})));
+      const k = i >= 0 ? i : 'x'+byIdx.size;
+      if(!byIdx.has(k)) byIdx.set(k, st);
+    });
+    detected = [...byIdx.values()].slice(0,4);
+    if(detected.length < 3) detected = null;
+  }
+  const stages = (detected || P.stages).map((st,i) => ({
+    title: st.title,
+    dur:   st.dur || (P.stages[i] ? P.stages[i].dur : ''),
+    names: (P.stages.find(x => norm(x.title) === norm(st.title)) || {names:[]}).names.concat([st.title]),
+    items: []
+  }));
 
-    for(const l of cleanLines(s)){
-      if(SECTIONS.some(sec => sec.names.includes(l))) continue;
-      const leaf = pickLeaf(l);
-      if(leaf && !used.has(leaf)){ used.add(leaf); buckets[cur].push(leaf); }
+  /* --- أسطر شريط التنقل: عناوين مراحل ترد مرفوقة بعناوين أخرى في الشريحة نفسها --- */
+  const labelSets = raw.map(s2 => {
+    const set = new Set();
+    s2.forEach(l => { if(matchStage(l, stages) >= 0) set.add(norm(l)); });
+    return set;
+  });
+  const where = new Map();
+  labelSets.forEach((set,i) => set.forEach(n => { if(!where.has(n)) where.set(n,[]); where.get(n).push(i); }));
+  const ribbonSet = new Set();
+  const freq = new Map();
+  raw.forEach(s2 => new Set(s2.map(norm)).forEach(n => freq.set(n,(freq.get(n)||0)+1)));
+  where.forEach((idxs,n) => {
+    const co = idxs.filter(i => labelSets[i].size > 1).length;
+    if(co / idxs.length >= 0.6) ribbonSet.add(n);
+    if(raw.length > 6 && (freq.get(n)||0)/raw.length > 0.4) ribbonSet.add(n);
+  });
+  const ribbon = n => ribbonSet.has(n);
+
+  /* --- حدود المحتوى: بعد شريحة الأهداف وقبل الملاحق --- */
+  let startIdx = 0, endIdx = raw.length;
+  raw.forEach((s2,i) => {
+    if(!startIdx && s2.some(l => P.goalMarks.some(g => l.includes(g)))) startIdx = i+1;
+    if(endIdx === raw.length && s2.some(l => P.stopMarks.some(m => norm(l) === norm(m)))) endIdx = i;
+  });
+  if(!startIdx) startIdx = Math.min(4, raw.length);
+
+  /* --- 1) التوزيع بالعناوين --- */
+  const used = new Set();
+  let cur = -1;
+  for(let i=0;i<endIdx;i++){
+    const s2 = raw[i];
+    const ex = new Set(), fz = new Set();
+    for(const l of s2){
+      if(ribbon(norm(l))) continue;
+      const e = matchStageExact(l, stages);
+      if(e >= 0){ ex.add(e); continue; }
+      const f = matchStageFuzzy(l, stages);
+      if(f >= 0) fz.add(f);
+    }
+    if(ex.size >= 2) continue;
+    if(ex.size === 1) cur = [...ex][0];
+    else if(fz.size === 1) cur = [...fz][0];
+    else if(fz.size >= 2) continue;
+    if(i < startIdx) continue;
+    if(cur < 0) cur = 0;
+    for(const l of cleanLines(s2)){
+      if(matchStage(l, stages) >= 0) continue;
+      const leaf = pickLeaf(l, isFr);
+      if(leaf && !used.has(leaf)){ used.add(leaf); stages[cur].items.push(leaf); }
     }
   }
-  for(const k in buckets) buckets[k] = buckets[k].slice(0,9);
+
+  /* --- 2) توزيع احتياطي نسبي إذا فشلت العناوين --- */
+  const filled = stages.filter(st => st.items.length).length;
+  if(filled < stages.length - 1){
+    stages.forEach(st => st.items = []);
+    const seen = new Set(), blocks = [];
+    for(let i=startIdx;i<endIdx;i++){
+      const leaves = cleanLines(raw[i])
+        .filter(l => !ribbon(norm(l)) && matchStage(l, stages) < 0)
+        .map(l => pickLeaf(l, isFr))
+        .filter(l => l && !seen.has(l));
+      leaves.forEach(l => seen.add(l));
+      if(leaves.length) blocks.push(leaves);
+    }
+    const w = stages.map(st => { const m = (st.dur||'').match(/\d+/); return m ? +m[0] : 10; });
+    const tot = w.reduce((a,b)=>a+b,0) || 1;
+    let acc = 0; const bounds = w.map(x => { acc += x; return Math.round(blocks.length*acc/tot); });
+    blocks.forEach((leaves,idx) => {
+      let st = 0; while(st < bounds.length-1 && idx >= bounds[st]) st++;
+      leaves.forEach(l => stages[st].items.push(l));
+    });
+  }
+
+  stages.forEach(st => st.items = st.items.slice(0,7));
 
   return {
-    name:file.name, masar, labna, hissa, duree:'70 د',
-    goals: goals.length ? goals : ['(أضف أهداف الحصة)'],
-    tools: tools.length ? tools : ['(أضف الوسائل)'],
-    sections: SECTIONS.map(s => ({title:s.title, dur:s.dur, items:buckets[s.key]}))
+    subject: subjectKey, level, masar, unit, hissa,
+    top: P.top(level || ($('gLevel') ? $('gLevel').value.trim() : '')),
+    foot: stages.map(x => x.title).join(P.sep),
+    duree: P.totalDur,
+    goals: goals.length ? goals : ['…'],
+    tools: tools.length ? tools : ['…'],
+    stages
   };
 }
 
-/* =========================================================
-   2) واجهة التحرير
-   ========================================================= */
+async function readPptx(file){
+  const zip = await JSZip.loadAsync(file);
+  const names = Object.keys(zip.files)
+    .filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n))
+    .sort((a,b)=> (+a.match(/\d+/)[0]) - (+b.match(/\d+/)[0]));
+  const raw = [];
+  for(const n of names){
+    raw.push(textOfSlideXml(await zip.file(n).async('string'))
+      .map(l => l.replace(/[‏‎]/g,'').replace(/\s+/g,' ').trim()).filter(Boolean));
+  }
+  return raw;
+}
+
+/* ============================================================
+   الواجهة
+   ============================================================ */
 let DOCS = [], SEL = 0;
-window.getDocs = () => DOCS;
 const $ = id => document.getElementById(id);
+window.getDocs = () => DOCS;
+
+function refreshHeaderDefaults(){
+  const lv = $('gLevel').value.trim();
+  DOCS.forEach(d => { const P = PROFILES[d.subject];
+    if(!d.topEdited) d.top = P.top(lv || d.level || '');
+    if(!d.footEdited) d.foot = d.stages.map(s => s.title).join(P.sep);
+  });
+}
 
 function renderTabs(){
   $('tabs').innerHTML = '';
   DOCS.forEach((d,i)=>{
+    const P = PROFILES[d.subject];
     const b = document.createElement('button');
     b.className = 'tab' + (i===SEL?' sel':'');
-    b.textContent = d.masar ? ('المسار '+d.masar) : d.name.replace(/\.pptx$/i,'');
+    b.textContent = (d.masar ? P.rootPrefix+' '+d.masar : d.name.replace(/\.pptx$/i,'')) + ' · ' + P.label;
     b.onclick = ()=>{ SEL=i; renderTabs(); renderEditor(); };
     $('tabs').appendChild(b);
   });
 }
-function field(label,val,oninput,cls=''){
+function textField(label,val,oninput){
   const w = document.createElement('div');
   w.innerHTML = '<label>'+label+'</label>';
   const inp = document.createElement('input');
-  inp.type='text'; inp.value=val||''; inp.className=cls;
-  inp.oninput = e=>oninput(e.target.value);
+  inp.type='text'; inp.value = val||'';
+  inp.oninput = e => oninput(e.target.value);
   w.appendChild(inp); return w;
 }
-function area(val,oninput){
+function listArea(val,oninput){
   const t = document.createElement('textarea');
   t.rows = Math.max(3, val.length+1);
   t.value = val.join('\n');
@@ -317,23 +558,40 @@ function area(val,oninput){
   return t;
 }
 function renderEditor(){
-  const d = DOCS[SEL]; const box = $('editor'); box.innerHTML='';
+  const d = DOCS[SEL], box = $('editor'); box.innerHTML='';
   if(!d) return;
+  const P = PROFILES[d.subject];
 
   const meta = document.createElement('div'); meta.className='meta';
-  meta.append(
-    field('رقم المسار', d.masar, v=>d.masar=v),
-    field('اللبنة', d.labna, v=>d.labna=v),
-    field('الحصة', d.hissa, v=>d.hissa=v),
-    field('المدة الإجمالية', d.duree, v=>d.duree=v)
-  );
+  const subjWrap = document.createElement('div');
+  subjWrap.innerHTML = '<label>مادة هذا الملف</label>';
+  const sel = document.createElement('select');
+  [['ar','اللغة العربية'],['math','الرياضيات'],['fr','Français']].forEach(([v,t])=>{
+    const o=document.createElement('option'); o.value=v; o.textContent=t; if(d.subject===v) o.selected=true; sel.appendChild(o);
+  });
+  sel.onchange = e => {
+    const nd = analyse(d.raw, e.target.value);
+    Object.assign(d, nd); DOCS[SEL]=d;
+    refreshHeaderDefaults(); renderTabs(); renderEditor();
+  };
+  subjWrap.appendChild(sel);
+  meta.append(subjWrap,
+    textField(P.rootPrefix, d.masar, v=>d.masar=v),
+    textField(P.unitPrefix||'Unité', d.unit, v=>d.unit=v),
+    textField(P.sessionWord, d.hissa, v=>d.hissa=v),
+    textField(P.durWord, d.duree, v=>d.duree=v));
   box.appendChild(meta);
+  const meta2 = document.createElement('div'); meta2.className='meta';
+  meta2.append(
+    textField('سطر علوي', d.top,  v=>{d.top=v;  d.topEdited=true;}),
+    textField('سطر سفلي', d.foot, v=>{d.foot=v; d.footEdited=true;}));
+  box.appendChild(meta2);
 
-  const addBranch = (obj, titleKey, items, setItems, durKey) => {
+  const branch = (obj,key,items,setItems,durKey) => {
     const b = document.createElement('div'); b.className='branch';
     const h = document.createElement('div'); h.className='head';
-    const t = document.createElement('input'); t.type='text'; t.value = obj[titleKey];
-    t.oninput = e => obj[titleKey] = e.target.value;
+    const t = document.createElement('input'); t.type='text'; t.value = obj[key];
+    t.oninput = e => obj[key] = e.target.value;
     h.appendChild(t);
     if(durKey){
       const dd = document.createElement('input'); dd.type='text'; dd.className='dur';
@@ -341,64 +599,72 @@ function renderEditor(){
       dd.oninput = e => obj[durKey] = e.target.value;
       h.appendChild(dd);
     }
-    b.appendChild(h);
-    b.appendChild(area(items, setItems));
-    const hint = document.createElement('div'); hint.className='hint';
-    hint.textContent='كل سطر = عنصر في الخطاطة.';
-    b.appendChild(hint);
-    box.appendChild(b);
+    b.appendChild(h); b.appendChild(listArea(items,setItems));
+    const hint=document.createElement('div'); hint.className='hint';
+    hint.textContent='كل سطر = عنصر في الخطاطة. احذف ما لا تحتاجه واختصر العبارات الطويلة.';
+    b.appendChild(hint); box.appendChild(b);
   };
 
-  addBranch({t:'الأهداف'}, 't', d.goals, v=>d.goals=v);
-  addBranch({t:'الوسائل'}, 't', d.tools, v=>d.tools=v);
-  d.sections.forEach(s => addBranch(s, 'title', s.items, v=>s.items=v, 'dur'));
+  const g = {t:P.goalsTitle}, w = {t:P.toolsTitle};
+  branch(g,'t', d.goals, v=>d.goals=v);
+  branch(w,'t', d.tools, v=>d.tools=v);
+  d.goalsTitle = g; d.toolsTitle = w;
+  d.stages.forEach(s => branch(s,'title', s.items, v=>s.items=v, 'dur'));
 }
 
-/* =========================================================
-   3) رسم الخطاطة
-   ========================================================= */
+/* ============================================================
+   الرسم
+   ============================================================ */
 function buildPage(d){
-  const page = document.createElement('div'); page.className='page';
-  const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const P = PROFILES[d.subject];
+  const ltr = P.dir === 'ltr';
+  const page = document.createElement('div'); page.className='page'; page.setAttribute('dir', P.dir);
+  const esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
-  const branch = (title, dur, items) => `
+  const br = (title,dur,items) => `
     <div class="br">
       <div class="bh">${esc(title)}${dur?`<span class="t">${esc(dur)}</span>`:''}</div>
       <div class="leaves">${items.map(x=>`<div class="lf">${esc(x)}</div>`).join('')}</div>
     </div>`;
 
-  const right = branch('الأهداف','', d.goals) + branch(d.sections[0].title, d.sections[0].dur, d.sections[0].items)
-              + branch(d.sections[1].title, d.sections[1].dur, d.sections[1].items);
-  const left  = branch('الوسائل','', d.tools) + branch(d.sections[2].title, d.sections[2].dur, d.sections[2].items)
-              + branch(d.sections[3].title, d.sections[3].dur, d.sections[3].items);
+  const st = d.stages;
+  const groupA = br((d.goalsTitle&&d.goalsTitle.t)||P.goalsTitle,'',d.goals)
+               + (st[0]?br(st[0].title,st[0].dur,st[0].items):'')
+               + (st[1]?br(st[1].title,st[1].dur,st[1].items):'');
+  const groupB = br((d.toolsTitle&&d.toolsTitle.t)||P.toolsTitle,'',d.tools)
+               + (st[2]?br(st[2].title,st[2].dur,st[2].items):'')
+               + (st[3]?br(st[3].title,st[3].dur,st[3].items):'')
+               + (st[4]?br(st[4].title,st[4].dur,st[4].items):'');
 
-  const teacher = $('gTeacher').value.trim(), school = $('gSchool').value.trim();
-  const infoBits = [];
-  if(teacher) infoBits.push(`<span><b>الأستاذ:</b> ${esc(teacher)}</span>`);
-  if(school)  infoBits.push(`<span><b>المدرسة:</b> ${esc(school)}</span>`);
-  infoBits.push(`<span><b>التاريخ:</b> ....................................</span>`);
+  const teacher=$('gTeacher').value.trim(), school=$('gSchool').value.trim();
+  const bits=[];
+  if(teacher) bits.push(`<span><b>${P.lblTeacher}:</b> ${esc(teacher)}</span>`);
+  if(school)  bits.push(`<span><b>${P.lblSchool}:</b> ${esc(school)}</span>`);
+  bits.push(`<span><b>${P.lblDate}:</b> ..............................</span>`);
+
+  const sub = [d.unit ? (P.unitPrefix ? P.unitPrefix+' '+d.unit : d.unit) : '',
+               d.hissa ? P.sessionWord+' '+d.hissa : ''].filter(Boolean).join(' · ');
 
   page.innerHTML = `
     <svg class="cn"></svg>
-    <div class="hdr">${esc($('gTop').value)} — <b>خطاطة ذهنية للحصة</b></div>
-    <div class="info">${infoBits.join('')}</div>
-    <div class="col r">${right}</div>
+    <div class="hdr">${esc(d.top||'')}</div>
+    <div class="info">${bits.join('')}</div>
+    <div class="col r">${ltr ? groupB : groupA}</div>
     <div class="root">
-      <div class="m">المسار ${esc(d.masar||'')}</div>
-      <div class="s">${esc(d.labna?('لبنة '+d.labna):'')}${d.hissa?(' · الحصة '+esc(d.hissa)):''}</div>
-      <div class="d">${d.duree?('المدة: '+esc(d.duree)):''}</div>
+      <div class="m">${esc(P.rootPrefix)} ${esc(d.masar||'')}</div>
+      <div class="s">${esc(sub)}</div>
+      <div class="d">${d.duree?esc(P.durWord+': '+d.duree):''}</div>
     </div>
-    <div class="col l">${left}</div>
-    <div class="foot">${esc($('gFoot').value)}</div>`;
+    <div class="col l">${ltr ? groupA : groupB}</div>
+    <div class="foot">${esc(d.foot||'')}</div>`;
   return page;
 }
 
 function drawConnectors(page){
-  const svg = page.querySelector('svg.cn');
-  const NS = 'http://www.w3.org/2000/svg';
-  svg.innerHTML = '';
+  const svg = page.querySelector('svg.cn'), NS='http://www.w3.org/2000/svg';
+  svg.innerHTML='';
   const pb = page.getBoundingClientRect();
-  const R  = el => { const r = el.getBoundingClientRect();
+  const R = el => { const r = el.getBoundingClientRect();
     return {l:r.left-pb.left, r:r.right-pb.left, t:r.top-pb.top, b:r.bottom-pb.top, cy:r.top-pb.top+r.height/2}; };
   const path = (d,w) => { const p=document.createElementNS(NS,'path');
     p.setAttribute('d',d); p.setAttribute('fill','none'); p.setAttribute('stroke','#111');
@@ -408,20 +674,15 @@ function drawConnectors(page){
 
   const root = R(page.querySelector('.root'));
   page.querySelectorAll('.col').forEach(col => {
-    const isR = col.classList.contains('r');
-    const cb = R(col);
-    col.querySelectorAll('.br').forEach(br => {
-      const h = R(br.querySelector('.bh'));
-      const hx = isR ? h.l : h.r, hy = h.cy;
-      const sx = isR ? root.r : root.l;
-      const c1 = sx + (isR?1:-1)*60, c2 = hx - (isR?1:-1)*60;
-      path(`M${sx},${root.cy} C${c1},${root.cy} ${c2},${hy} ${hx},${hy}`, 3);
-
-      const spine = isR ? cb.r - 14 : cb.l + 14;
+    const isR = col.classList.contains('r'), cb = R(col);
+    col.querySelectorAll('.br').forEach(b => {
+      const h = R(b.querySelector('.bh'));
+      const hx = isR ? h.l : h.r, hy = h.cy, sx = isR ? root.r : root.l;
+      path(`M${sx},${root.cy} C${sx+(isR?60:-60)},${root.cy} ${hx-(isR?60:-60)},${hy} ${hx},${hy}`, 3);
+      const spine = isR ? cb.r-14 : cb.l+14;
       let last = h.b;
-      br.querySelectorAll('.lf').forEach(lf => {
-        const l = R(lf);
-        const lx = isR ? l.r : l.l, ly = l.cy; last = ly;
+      b.querySelectorAll('.lf').forEach(lf => {
+        const l = R(lf), lx = isR ? l.r : l.l, ly = l.cy; last = ly;
         const k = isR ? -1 : 1;
         path(`M${spine},${ly-10} Q${spine},${ly} ${spine+k*10},${ly} L${lx},${ly}`, 1.6);
         dot(lx,ly,2.4);
@@ -431,58 +692,87 @@ function drawConnectors(page){
   });
 }
 
+function fitPage(page){
+  const cols=[...page.querySelectorAll('.col')];
+  const over = () => cols.some(c => {
+    const kids=[...c.children];
+    const sum = kids.reduce((a,b)=>a+b.offsetHeight,0) + (kids.length-1)*10;
+    return sum > c.clientHeight;
+  });
+  let fs=12.5, gap=5, bgap=6, pad=4;
+  while(over() && fs > 8){
+    fs-=0.5; gap=Math.max(2,gap-0.25); bgap=Math.max(3,bgap-0.25); pad=Math.max(2,pad-0.15);
+    page.querySelectorAll('.lf').forEach(l=>{ l.style.fontSize=fs+'px'; l.style.padding=pad+'px 9px'; });
+    page.querySelectorAll('.leaves').forEach(l=>l.style.gap=gap+'px');
+    page.querySelectorAll('.br').forEach(b=>b.style.gap=bgap+'px');
+    page.querySelectorAll('.bh').forEach(b=>b.style.fontSize=Math.max(11,fs+1.2)+'px');
+  }
+}
+
 function renderAll(){
-  const out = $('out'); out.innerHTML='';
+  const out=$('out'); out.innerHTML='';
   DOCS.forEach(d => out.appendChild(buildPage(d)));
-  requestAnimationFrame(()=> {
-    out.querySelectorAll('.page').forEach(drawConnectors);
-    $('print').disabled = false; $('png').disabled = false;
+  requestAnimationFrame(()=>{
+    out.querySelectorAll('.page').forEach(p=>{ fitPage(p); drawConnectors(p); });
+    $('print').disabled=false; $('png').disabled=false;
     out.scrollIntoView({behavior:'smooth', block:'start'});
   });
 }
 
-/* =========================================================
-   4) الأحداث
-   ========================================================= */
-const drop = $('drop'), fileInput = $('file');
+/* ============================================================
+   الأحداث
+   ============================================================ */
+const drop=$('drop'), fileInput=$('file');
 drop.onclick = ()=> fileInput.click();
 ['dragenter','dragover'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('on')}));
 ['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('on')}));
 drop.addEventListener('drop', ev => handle(ev.dataTransfer.files));
 fileInput.onchange = e => handle(e.target.files);
+$('subject').onchange = ()=>{
+  if(!DOCS.length) return;
+  const s=$('subject').value;
+  DOCS.forEach(d => Object.assign(d, analyse(d.raw, s==='auto' ? detectSubject(d.raw) : s)));
+  refreshHeaderDefaults(); renderTabs(); renderEditor();
+};
+$('gLevel').oninput = ()=>{ refreshHeaderDefaults(); renderEditor(); };
 
 async function handle(list){
-  const files = [...list].filter(f => /\.pptx$/i.test(f.name));
+  const files=[...list].filter(f=>/\.pptx$/i.test(f.name));
   if(!files.length){ alert('المرجو اختيار ملفات بصيغة .pptx'); return; }
-  drop.querySelector('b').textContent = 'جاري التحليل…';
-  const parsed = [];
+  drop.querySelector('b').textContent='جاري التحليل…';
+  const parsed=[];
   for(const f of files){
-    try { parsed.push(await parsePptx(f)); }
-    catch(err){ console.error(err); alert('تعذّر قراءة الملف: '+f.name); }
+    try{
+      const raw = await readPptx(f);
+      const chosen = $('subject').value;
+      const subj = chosen==='auto' ? detectSubject(raw) : chosen;
+      const doc = analyse(raw, subj);
+      doc.raw = raw; doc.name = f.name;
+      parsed.push(doc);
+    }catch(err){ console.error(err); alert('تعذّر قراءة الملف: '+f.name); }
   }
   parsed.sort((a,b)=> (a.masar||'9').localeCompare(b.masar||'9'));
-  DOCS = parsed; SEL = 0; window.DOCS = DOCS;
+  DOCS=parsed; SEL=0; window.DOCS=DOCS;
   drop.querySelector('b').textContent = `تم تحليل ${DOCS.length} ملف — انقر لإضافة ملفات أخرى`;
-  $('editorCard').style.display = DOCS.length ? '' : 'none';
-  $('actionsCard').style.display = DOCS.length ? '' : 'none';
-  renderTabs(); renderEditor();
+  $('editorCard').style.display = DOCS.length?'':'none';
+  $('actionsCard').style.display = DOCS.length?'':'none';
+  refreshHeaderDefaults(); renderTabs(); renderEditor();
 }
 
 $('render').onclick = renderAll;
 $('print').onclick = ()=> window.print();
 $('png').onclick = async ()=>{
-  const pages = [...document.querySelectorAll('.page')];
-  let saver = null;
-  try { saver = (window.claude && claude.use) ? await claude.use('downloads') : null; } catch(e){}
+  const pages=[...document.querySelectorAll('.page')];
+  let saver=null;
+  try{ saver = (window.claude && claude.use) ? await claude.use('downloads') : null; }catch(e){}
   for(let i=0;i<pages.length;i++){
     const canvas = await html2canvas(pages[i], {scale:2, backgroundColor:'#fff', windowWidth:900});
-    const fname = `mindmap-${DOCS[i] && DOCS[i].masar ? 'masar-'+DOCS[i].masar : (i+1)}.png`;
+    const fname = `mindmap-${DOCS[i]&&DOCS[i].masar ? DOCS[i].subject+'-'+DOCS[i].masar : (i+1)}.png`;
     if(saver){
-      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-      try { await saver.save({filename:fname, data:blob}); } catch(e){ console.warn(e); }
-    } else {
-      const a = document.createElement('a');
-      a.download = fname; a.href = canvas.toDataURL('image/png'); a.click();
+      const blob = await new Promise(r=>canvas.toBlob(r,'image/png'));
+      try{ await saver.save({filename:fname, data:blob}); }catch(e){ console.warn(e); }
+    }else{
+      const a=document.createElement('a'); a.download=fname; a.href=canvas.toDataURL('image/png'); a.click();
     }
     await new Promise(r=>setTimeout(r,300));
   }
