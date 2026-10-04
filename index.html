@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مولّد الخطاطات الذهنية من عروض PPTX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --ink:#111; --soft:#555; --line:#d9d9d9; --bg:#f4f5f7; --card:#fff;
+  --accent:#111; --band:#ececec;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Cairo,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+header{background:#111;color:#fff;padding:18px 20px}
+header h1{font-size:19px;font-weight:800}
+header p{font-size:12.5px;color:#bbb;margin-top:3px}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{font-size:15.5px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card h2 .n{background:#111;color:#fff;border-radius:50%;width:24px;height:24px;display:grid;place-items:center;font-size:12.5px}
+.drop{border:2px dashed #aaa;border-radius:12px;padding:28px 16px;text-align:center;background:#fafafa;cursor:pointer;transition:.15s}
+.drop.on{background:#eee;border-color:#111}
+.drop b{display:block;font-size:15px;margin-bottom:4px}
+.drop span{font-size:12.5px;color:var(--soft)}
+input[type=file]{display:none}
+.btn{font-family:inherit;font-size:13.5px;font-weight:700;border:1px solid #111;background:#111;color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer}
+.btn.ghost{background:#fff;color:#111}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+label{display:block;font-size:12px;font-weight:700;color:var(--soft);margin-bottom:3px}
+input[type=text]{width:100%;font-family:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff}
+textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;resize:vertical;line-height:1.7;background:#fff}
+.branch{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;background:#fcfcfc}
+.branch .head{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.branch .head input[type=text]{flex:1;min-width:140px;font-weight:700}
+.branch .head .dur{width:90px;flex:none}
+.hint{font-size:11.5px;color:var(--soft);margin-top:4px}
+.file-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{font-family:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;cursor:pointer}
+.tab.sel{background:#111;color:#fff;border-color:#111}
+.empty{color:var(--soft);font-size:13px}
+
+/* ===== mind map page ===== */
+#out{display:flex;flex-direction:column;gap:18px;align-items:center}
+.page{position:relative;width:794px;height:1123px;background:#fff;overflow:hidden;color:#111;
+      box-shadow:0 2px 14px rgba(0,0,0,.14);flex:none}
+.page .hdr{position:absolute;top:18px;left:0;right:0;text-align:center;font-size:13px;color:#555}
+.page .hdr b{color:#111}
+.page .info{position:absolute;top:40px;left:14px;right:14px;display:flex;justify-content:space-between;
+      font-size:12.5px;border-top:1px solid #999;border-bottom:1px solid #999;padding:3px 10px}
+.page .info b{font-weight:800}
+.page svg.cn{position:absolute;inset:0;width:794px;height:1123px;z-index:0}
+.page .root{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;background:#111;color:#fff;
+      border-radius:22px;padding:14px 12px;text-align:center;width:176px;box-shadow:0 0 0 5px #fff,0 0 0 7px #111}
+.page .root .m{font-size:28px;font-weight:800;line-height:1.15}
+.page .root .s{font-size:14px;font-weight:700;margin-top:4px;color:#eee}
+.page .root .d{font-size:12px;color:#ccc;margin-top:2px}
+.page .col{position:absolute;top:82px;bottom:40px;width:266px;display:flex;flex-direction:column;justify-content:space-around;z-index:2}
+.page .col.r{right:14px}
+.page .col.l{left:14px}
+.page .br{display:flex;flex-direction:column;gap:6px}
+.page .bh{background:#3a3a3a;color:#fff;font-weight:700;font-size:14.5px;padding:5px 16px;border-radius:999px;
+      display:inline-flex;gap:10px;align-items:center;max-width:100%}
+.page .col.r .bh{align-self:flex-start}
+.page .col.l .bh{align-self:flex-end}
+.page .bh .t{white-space:nowrap;background:#fff;color:#111;border-radius:999px;padding:0 8px;font-size:12px;font-weight:800}
+.page .leaves{display:flex;flex-direction:column;gap:5px}
+.page .lf{background:#fff;border:1.4px solid #111;border-radius:9px;padding:4px 10px;font-size:12.8px;line-height:1.45;font-weight:600}
+.page .col.r .lf{margin-right:30px}
+.page .col.l .lf{margin-left:30px}
+.page .foot{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:10.5px;color:#777}
+
+@media print{
+  body{background:#fff}
+  header,.wrap > .card,.noprint{display:none !important}
+  .wrap{padding:0;max-width:none}
+  #out{gap:0}
+  .page{box-shadow:none;page-break-after:always;break-after:page}
+  @page{size:A4 portrait;margin:0}
+}
+@media (max-width:860px){
+  .page{transform:scale(.45);transform-origin:top center;margin-bottom:-600px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>مولّد الخطاطات الذهنية من عروض PPTX</h1>
+  <p>ارفع عروض الحصص، يستخرج الموقع محتواها ويبني خطاطة ذهنية جاهزة للطباعة — كل المعالجة تتم داخل متصفحك.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2><span class="n">1</span> رفع العروض</h2>
+    <div class="drop" id="drop">
+      <b>اسحب ملفات .pptx هنا أو انقر للاختيار</b>
+      <span>يمكن رفع عدة ملفات دفعة واحدة (مسار 1، مسار 2، مسار 3...)</span>
+    </div>
+    <input type="file" id="file" accept=".pptx" multiple>
+    <div class="hint">لا يُرفع أي ملف إلى أي خادم: القراءة والتحليل يتمّان محليًّا في المتصفح.</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">2</span> بيانات الترويسة</h2>
+    <div class="meta">
+      <div><label>الأستاذ(ة)</label><input type="text" id="gTeacher" placeholder="محمد العلوي"></div>
+      <div><label>المدرسة</label><input type="text" id="gSchool" placeholder="محمد الحنصالي"></div>
+      <div><label>سطر علوي</label><input type="text" id="gTop" value="برنامج دعم التعلمات الأساس — اللغة العربية — المستوى 6"></div>
+      <div><label>سطر سفلي</label><input type="text" id="gFoot" value="افتتاح الحصة ← أنشطة قرائية ← أنشطة كتابية ← اختتام الحصة"></div>
+    </div>
+  </div>
+
+  <div class="card" id="editorCard" style="display:none">
+    <h2><span class="n">3</span> مراجعة المحتوى وتحريره</h2>
+    <div class="file-tabs" id="tabs"></div>
+    <div id="editor"></div>
+  </div>
+
+  <div class="card noprint" id="actionsCard" style="display:none">
+    <h2><span class="n">4</span> الإخراج</h2>
+    <div class="row">
+      <button class="btn" id="render">توليد الخطاطات</button>
+      <button class="btn ghost" id="print" disabled>طباعة / حفظ PDF</button>
+      <button class="btn ghost" id="png" disabled>تحميل صور PNG</button>
+    </div>
+    <div class="hint">عند الطباعة اختر: الحجم A4، الاتجاه عمودي (Portrait)، الهوامش «بلا»، وفعّل «طباعة ألوان الخلفية».</div>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+/* =========================================================
+   1) استخراج النص من ملف pptx
+   ========================================================= */
+const NOISE = [
+  'الوسائط','ايقونات أخرى','ايقونات اخرى','خاص بالأستاذ','خاص بالأستاذ(ة)','هيكلة الحصة','هيكلة المسار',
+  'اللغة العربية','المستوى','المسار','برنامج دعم التعلمات الأساس','إلى الحصة القادمة','سير الحصة',
+  'توجيات الأستاذ','توجيهات الأستاذ','عمل ثنائي','تعيين تلميذ للاجابة','تعيين تلميذ للإجابة','تتبع العمل الفردي',
+  'ألعاب','إسناد وتغذية راجعة','عمل في مجموعات','نمذجة','نمذجة موجهة بالشرائح','نمذجة على السبورة','عرض فيديو',
+  'أنشطة على الكراسة','نشاط على الألواح','الأدوات المدرسية','تدبير السلوك','عمل فردي','الوسائل','الكلمة','جملة',
+  'المذكرة اليومية','الخطاطات الذهنية','الإعداد المادي','النشاط الرئيسي','الممارسة المستقلة','القراءة والفهم','الكتابة'
+];
+const SECTIONS = [
+  {key:'open',  names:['افتتاح الحصة'],                         title:'افتتاح الحصة', dur:'15 د'},
+  {key:'read',  names:['أنشطة قرائية','النشاط الرئيسي'],        title:'أنشطة قرائية', dur:'30 د'},
+  {key:'write', names:['أنشطة كتابية','الممارسة المستقلة'],     title:'أنشطة كتابية', dur:'15 د'},
+  {key:'close', names:['اختتام الحصة'],                         title:'اختتام الحصة', dur:'10 د'}
+];
+const ASIDE = /^(يقدم|يتنقل|يسجل|يقوم|يعرض|يطلب|يدعو|يحرص|يتم|يشير|ينشئ|يستهدف|يوضح|يمكن|تقبل|تقدم|تمنح|يعلن|يقرأ الأستاذ|يضع)/;
+
+function textOfSlideXml(xml){
+  const doc = new DOMParser().parseFromString(xml,'application/xml');
+  const paras = doc.getElementsByTagName('a:p');
+  const out = [];
+  for(const p of paras){
+    let s = '';
+    for(const t of p.getElementsByTagName('a:t')) s += t.textContent;
+    s = s.replace(/\s+/g,' ').trim();
+    if(s) out.push(s);
+  }
+  return out;
+}
+function cleanLines(lines){
+  const seen = new Set(); const out = [];
+  for(let l of lines){
+    l = l.replace(/[‏‎]/g,'').trim();
+    if(!l) continue;
+    if(/^[\d\s\/\.\-–—:]+$/.test(l)) continue;         // أرقام وشرائط التنقل
+    if(/^اليوم\s*\d+$/.test(l)) continue;
+    if(NOISE.includes(l)) continue;
+    if(l.length < 3) continue;
+    if(seen.has(l)) continue;
+    seen.add(l); out.push(l);
+  }
+  return out;
+}
+function sectionOf(lines){
+  for(const line of lines){
+    for(const s of SECTIONS){
+      if(s.names.some(n => line === n || line.startsWith(n))) return s.key;
+    }
+  }
+  return null;
+}
+function pickLeaf(l){
+  if(/^\(.*\)$/.test(l)) return null;                  // ملاحظة موجهة للأستاذ
+  if(ASIDE.test(l) && l.length < 160) return null;
+  if(/^(مرحبا|أحسنتم|ممتاز|جيد|صححوا|لنصحح|انتهى الوقت|الآن دوركم|أنهينا)/.test(l) && l.length < 60) return null;
+  l = l.replace(/^[\-–•\s]+/,'').trim();
+  if(l.length < 12) return null;
+  if(l.length > 120) l = l.slice(0,117).trim() + '…';
+  return l;
+}
+
+async function parsePptx(file){
+  const zip = await JSZip.loadAsync(file);
+  const names = Object.keys(zip.files)
+    .filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n))
+    .sort((a,b)=> (+a.match(/\d+/)[0]) - (+b.match(/\d+/)[0]));
+
+  const raw = [];   // سطور كل شريحة كما هي (بعد تنظيف بسيط)
+  for(const n of names){
+    const lines = textOfSlideXml(await zip.file(n).async('string'))
+      .map(l => l.replace(/[‏‎]/g,'').replace(/\s+/g,' ').trim())
+      .filter(Boolean);
+    raw.push(lines);
+  }
+
+  /* ---------- بيانات العنوان ---------- */
+  const head = (raw[0]||[]);
+  let masar = '', labna = '', hissa = '';
+  head.forEach((l,i) => {
+    if(l === 'المسار' && /^\d$/.test(head[i+1]||'')) masar = head[i+1];
+    const m1 = l.match(/^المسار\s*(\d)\s*$/); if(m1) masar = m1[1];
+    const m2 = l.match(/^لبنة\s+(.+)$/);      if(m2) labna = m2[1].trim();
+    const m3 = l.match(/^الحصة\s*([\d\s\/]+)$/); if(m3) hissa = m3[1].replace(/\s/g,'');
+  });
+
+  /* ---------- الأهداف ---------- */
+  const goals = [];
+  for(const s of raw){
+    if(s.some(l => l.includes('عند نهاية الحصة') || l.includes('قادرين على'))){
+      for(const l of s){
+        if(l.includes('عند نهاية الحصة') || l.includes('قادرين على')) continue;
+        if(NOISE.includes(l) || l.length < 10) continue;
+        l.split(/[؛]/).map(x => x.replace(/^[\-–•\s\.]+/,'').replace(/[\.؛]$/,'').trim())
+         .filter(x => x.length > 8)
+         .forEach(x => { if(goals.length < 5 && !goals.includes(x)) goals.push(x); });
+      }
+      if(goals.length) break;
+    }
+  }
+
+  /* ---------- الوسائل / العدة ---------- */
+  const tools = [];
+  for(const s of raw){
+    const hit = s.some(l => l.includes('العدة اللازمة للحصة') || l === 'الوسائل');
+    if(!hit) continue;
+    for(const l of s){
+      if(l.includes('العدة اللازمة') || l === 'الوسائل') continue;
+      if(l.length > 30 || l.length < 3) continue;
+      if(/^[\d\s\/]+$/.test(l)) continue;
+      if(l.startsWith('خاص بالأستاذ') || l === 'هيكلة الحصة' || l === 'هيكلة المسار') continue;
+      if(SECTIONS.some(sec => sec.names.includes(l))) continue;
+      if(!tools.includes(l) && tools.length < 6) tools.push(l);
+    }
+    if(tools.length) break;
+  }
+
+  /* ---------- توزيع الشرائح على المراحل ---------- */
+  const buckets = {open:[],read:[],write:[],close:[]};
+  const used = new Set();
+  let cur = null;
+  for(const s of raw){
+    // شرائح التنقل / الهيكلة: تحمل أكثر من عنوان مرحلة ← تُتجاهل كليا
+    const marks = new Set();
+    for(const l of s) for(const sec of SECTIONS) if(sec.names.includes(l)) marks.add(sec.key);
+    if(marks.size >= 2) continue;
+    if(marks.size === 1) cur = [...marks][0];
+    if(!cur) continue;
+
+    for(const l of cleanLines(s)){
+      if(SECTIONS.some(sec => sec.names.includes(l))) continue;
+      const leaf = pickLeaf(l);
+      if(leaf && !used.has(leaf)){ used.add(leaf); buckets[cur].push(leaf); }
+    }
+  }
+  for(const k in buckets) buckets[k] = buckets[k].slice(0,9);
+
+  return {
+    name:file.name, masar, labna, hissa, duree:'70 د',
+    goals: goals.length ? goals : ['(أضف أهداف الحصة)'],
+    tools: tools.length ? tools : ['(أضف الوسائل)'],
+    sections: SECTIONS.map(s => ({title:s.title, dur:s.dur, items:buckets[s.key]}))
+  };
+}
+
+/* =========================================================
+   2) واجهة التحرير
+   ========================================================= */
+let DOCS = [], SEL = 0;
+window.getDocs = () => DOCS;
+const $ = id => document.getElementById(id);
+
+function renderTabs(){
+  $('tabs').innerHTML = '';
+  DOCS.forEach((d,i)=>{
+    const b = document.createElement('button');
+    b.className = 'tab' + (i===SEL?' sel':'');
+    b.textContent = d.masar ? ('المسار '+d.masar) : d.name.replace(/\.pptx$/i,'');
+    b.onclick = ()=>{ SEL=i; renderTabs(); renderEditor(); };
+    $('tabs').appendChild(b);
+  });
+}
+function field(label,val,oninput,cls=''){
+  const w = document.createElement('div');
+  w.innerHTML = '<label>'+label+'</label>';
+  const inp = document.createElement('input');
+  inp.type='text'; inp.value=val||''; inp.className=cls;
+  inp.oninput = e=>oninput(e.target.value);
+  w.appendChild(inp); return w;
+}
+function area(val,oninput){
+  const t = document.createElement('textarea');
+  t.rows = Math.max(3, val.length+1);
+  t.value = val.join('\n');
+  t.oninput = e => oninput(e.target.value.split('\n').map(x=>x.trim()).filter(Boolean));
+  return t;
+}
+function renderEditor(){
+  const d = DOCS[SEL]; const box = $('editor'); box.innerHTML='';
+  if(!d) return;
+
+  const meta = document.createElement('div'); meta.className='meta';
+  meta.append(
+    field('رقم المسار', d.masar, v=>d.masar=v),
+    field('اللبنة', d.labna, v=>d.labna=v),
+    field('الحصة', d.hissa, v=>d.hissa=v),
+    field('المدة الإجمالية', d.duree, v=>d.duree=v)
+  );
+  box.appendChild(meta);
+
+  const addBranch = (obj, titleKey, items, setItems, durKey) => {
+    const b = document.createElement('div'); b.className='branch';
+    const h = document.createElement('div'); h.className='head';
+    const t = document.createElement('input'); t.type='text'; t.value = obj[titleKey];
+    t.oninput = e => obj[titleKey] = e.target.value;
+    h.appendChild(t);
+    if(durKey){
+      const dd = document.createElement('input'); dd.type='text'; dd.className='dur';
+      dd.value = obj[durKey]||''; dd.placeholder='المدة';
+      dd.oninput = e => obj[durKey] = e.target.value;
+      h.appendChild(dd);
+    }
+    b.appendChild(h);
+    b.appendChild(area(items, setItems));
+    const hint = document.createElement('div'); hint.className='hint';
+    hint.textContent='كل سطر = عنصر في الخطاطة.';
+    b.appendChild(hint);
+    box.appendChild(b);
+  };
+
+  addBranch({t:'الأهداف'}, 't', d.goals, v=>d.goals=v);
+  addBranch({t:'الوسائل'}, 't', d.tools, v=>d.tools=v);
+  d.sections.forEach(s => addBranch(s, 'title', s.items, v=>s.items=v, 'dur'));
+}
+
+/* =========================================================
+   3) رسم الخطاطة
+   ========================================================= */
+function buildPage(d){
+  const page = document.createElement('div'); page.className='page';
+  const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+  const branch = (title, dur, items) => `
+    <div class="br">
+      <div class="bh">${esc(title)}${dur?`<span class="t">${esc(dur)}</span>`:''}</div>
+      <div class="leaves">${items.map(x=>`<div class="lf">${esc(x)}</div>`).join('')}</div>
+    </div>`;
+
+  const right = branch('الأهداف','', d.goals) + branch(d.sections[0].title, d.sections[0].dur, d.sections[0].items)
+              + branch(d.sections[1].title, d.sections[1].dur, d.sections[1].items);
+  const left  = branch('الوسائل','', d.tools) + branch(d.sections[2].title, d.sections[2].dur, d.sections[2].items)
+              + branch(d.sections[3].title, d.sections[3].dur, d.sections[3].items);
+
+  const teacher = $('gTeacher').value.trim(), school = $('gSchool').value.trim();
+  const infoBits = [];
+  if(teacher) infoBits.push(`<span><b>الأستاذ:</b> ${esc(teacher)}</span>`);
+  if(school)  infoBits.push(`<span><b>المدرسة:</b> ${esc(school)}</span>`);
+  infoBits.push(`<span><b>التاريخ:</b> ....................................</span>`);
+
+  page.innerHTML = `
+    <svg class="cn"></svg>
+    <div class="hdr">${esc($('gTop').value)} — <b>خطاطة ذهنية للحصة</b></div>
+    <div class="info">${infoBits.join('')}</div>
+    <div class="col r">${right}</div>
+    <div class="root">
+      <div class="m">المسار ${esc(d.masar||'')}</div>
+      <div class="s">${esc(d.labna?('لبنة '+d.labna):'')}${d.hissa?(' · الحصة '+esc(d.hissa)):''}</div>
+      <div class="d">${d.duree?('المدة: '+esc(d.duree)):''}</div>
+    </div>
+    <div class="col l">${left}</div>
+    <div class="foot">${esc($('gFoot').value)}</div>`;
+  return page;
+}
+
+function drawConnectors(page){
+  const svg = page.querySelector('svg.cn');
+  const NS = 'http://www.w3.org/2000/svg';
+  svg.innerHTML = '';
+  const pb = page.getBoundingClientRect();
+  const R  = el => { const r = el.getBoundingClientRect();
+    return {l:r.left-pb.left, r:r.right-pb.left, t:r.top-pb.top, b:r.bottom-pb.top, cy:r.top-pb.top+r.height/2}; };
+  const path = (d,w) => { const p=document.createElementNS(NS,'path');
+    p.setAttribute('d',d); p.setAttribute('fill','none'); p.setAttribute('stroke','#111');
+    p.setAttribute('stroke-width',w); p.setAttribute('stroke-linecap','round'); svg.appendChild(p); };
+  const dot = (x,y,r) => { const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',r); c.setAttribute('fill','#111'); svg.appendChild(c); };
+
+  const root = R(page.querySelector('.root'));
+  page.querySelectorAll('.col').forEach(col => {
+    const isR = col.classList.contains('r');
+    const cb = R(col);
+    col.querySelectorAll('.br').forEach(br => {
+      const h = R(br.querySelector('.bh'));
+      const hx = isR ? h.l : h.r, hy = h.cy;
+      const sx = isR ? root.r : root.l;
+      const c1 = sx + (isR?1:-1)*60, c2 = hx - (isR?1:-1)*60;
+      path(`M${sx},${root.cy} C${c1},${root.cy} ${c2},${hy} ${hx},${hy}`, 3);
+
+      const spine = isR ? cb.r - 14 : cb.l + 14;
+      let last = h.b;
+      br.querySelectorAll('.lf').forEach(lf => {
+        const l = R(lf);
+        const lx = isR ? l.r : l.l, ly = l.cy; last = ly;
+        const k = isR ? -1 : 1;
+        path(`M${spine},${ly-10} Q${spine},${ly} ${spine+k*10},${ly} L${lx},${ly}`, 1.6);
+        dot(lx,ly,2.4);
+      });
+      path(`M${spine},${h.b-2} L${spine},${last-10}`, 1.8);
+    });
+  });
+}
+
+function renderAll(){
+  const out = $('out'); out.innerHTML='';
+  DOCS.forEach(d => out.appendChild(buildPage(d)));
+  requestAnimationFrame(()=> {
+    out.querySelectorAll('.page').forEach(drawConnectors);
+    $('print').disabled = false; $('png').disabled = false;
+    out.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
+
+/* =========================================================
+   4) الأحداث
+   ========================================================= */
+const drop = $('drop'), fileInput = $('file');
+drop.onclick = ()=> fileInput.click();
+['dragenter','dragover'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('on')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('on')}));
+drop.addEventListener('drop', ev => handle(ev.dataTransfer.files));
+fileInput.onchange = e => handle(e.target.files);
+
+async function handle(list){
+  const files = [...list].filter(f => /\.pptx$/i.test(f.name));
+  if(!files.length){ alert('المرجو اختيار ملفات بصيغة .pptx'); return; }
+  drop.querySelector('b').textContent = 'جاري التحليل…';
+  const parsed = [];
+  for(const f of files){
+    try { parsed.push(await parsePptx(f)); }
+    catch(err){ console.error(err); alert('تعذّر قراءة الملف: '+f.name); }
+  }
+  parsed.sort((a,b)=> (a.masar||'9').localeCompare(b.masar||'9'));
+  DOCS = parsed; SEL = 0; window.DOCS = DOCS;
+  drop.querySelector('b').textContent = `تم تحليل ${DOCS.length} ملف — انقر لإضافة ملفات أخرى`;
+  $('editorCard').style.display = DOCS.length ? '' : 'none';
+  $('actionsCard').style.display = DOCS.length ? '' : 'none';
+  renderTabs(); renderEditor();
+}
+
+$('render').onclick = renderAll;
+$('print').onclick = ()=> window.print();
+$('png').onclick = async ()=>{
+  const pages = [...document.querySelectorAll('.page')];
+  let saver = null;
+  try { saver = (window.claude && claude.use) ? await claude.use('downloads') : null; } catch(e){}
+  for(let i=0;i<pages.length;i++){
+    const canvas = await html2canvas(pages[i], {scale:2, backgroundColor:'#fff', windowWidth:900});
+    const fname = `mindmap-${DOCS[i] && DOCS[i].masar ? 'masar-'+DOCS[i].masar : (i+1)}.png`;
+    if(saver){
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      try { await saver.save({filename:fname, data:blob}); } catch(e){ console.warn(e); }
+    } else {
+      const a = document.createElement('a');
+      a.download = fname; a.href = canvas.toDataURL('image/png'); a.click();
+    }
+    await new Promise(r=>setTimeout(r,300));
+  }
+};
+</script>
+</body>
+</html>
