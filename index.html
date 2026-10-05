@@ -156,10 +156,10 @@ const PROFILES = {
       {title:'افتتاح الحصة', dur:'15 د', names:['افتتاح الحصة','وضعية الانطلاق','التهيئة']},
       {title:'أنشطة قرائية', dur:'30 د', names:['أنشطة قرائية','النشاط الرئيسي','القراءة والفهم']},
       {title:'أنشطة كتابية', dur:'15 د', names:['أنشطة كتابية','الممارسة المستقلة','الكتابة']},
-      {title:'اختتام الحصة', dur:'10 د', names:['اختتام الحصة','التقويم','تبصر الحصة']}
+      {title:'اختتام الحصة', dur:'10 د', names:['اختتام الحصة','التقويم']}
     ],
     goalMarks:['عند نهاية الحصة','قادرين على'],
-    toolMarks:['العدة اللازمة للحصة','الوسائل','العدة اللازمة'],
+    toolMarks:['العدة اللازمة للحصة','العدة اللازمة','القمطر','الوسائل'],
     structMarks:['هيكلة الحصة','سير الحصة'],
     stopMarks:['ملاحق'],
     cover:{ masar:/^المسار\s*[:\/]?\s*(\d+)/, masarWord:'المسار',
@@ -178,10 +178,10 @@ const PROFILES = {
       {title:'افتتاح الحصة', dur:'10 د', names:['افتتاح الحصة','وضعية الانطلاق','الحساب الذهني','التهيئة']},
       {title:'النشاط الرئيسي', dur:'30 د', names:['النشاط الرئيسي','بناء وترييض','البناء والترييض','بناء المفهوم']},
       {title:'الممارسة المستقلة', dur:'20 د', names:['الممارسة المستقلة','ممارسة مستقلة','التمرن','التطبيق']},
-      {title:'اختتام الحصة', dur:'10 د', names:['اختتام الحصة','التقويم','تبصر الحصة']}
+      {title:'اختتام الحصة', dur:'10 د', names:['اختتام الحصة','التقويم']}
     ],
     goalMarks:['عند نهاية الحصة','قادرين على'],
-    toolMarks:['الوسائل','العدة اللازمة للحصة','العدة اللازمة'],
+    toolMarks:['العدة اللازمة للحصة','العدة اللازمة','القمطر','الوسائل'],
     structMarks:['سير الحصة','هيكلة الحصة'],
     stopMarks:['ملاحق'],
     cover:{ masar:/^المسار\s*[:\/]?\s*(\d+)/, masarWord:'المسار',
@@ -200,7 +200,7 @@ const PROFILES = {
       {title:"Rituel d'ouverture", dur:'10 min', names:["Rituel d'ouverture",'Ouverture','Rituel','Mise en train','Démarrage']},
       {title:'Vocabulaire',        dur:'30 min', names:['Vocabulaire','Compréhension orale','Découverte','Rebrassage du vocabulaire']},
       {title:'Lecture',            dur:'20 min', names:['Lecture','Écriture','Entraînement','Production écrite','Rebrassage de la lecture']},
-      {title:'Clôture',            dur:'10 min', names:['Clôture','Bilan','Évaluation','Synthèse','Réflexions']}
+      {title:'Clôture',            dur:'10 min', names:['Clôture','Bilan','Évaluation','Synthèse']}
     ],
     goalMarks:['seront capables','la fin de la séance','devraient être capables'],
     toolMarks:['Matériel technique','Matériel didactique','Matériel','Supports'],
@@ -376,6 +376,29 @@ const WORDLIST = l => {
 const ADDRESS_AR = /^(الآن|سأ|سن|لنصحح|لنقرأ|لنعد|اقرأ|اكتب|خذوا|ارفعوا|لاحظوا|انتبهوا|صححوا|أجيبوا|تابعوا|استعدوا|ضعوا|افتحوا|قوموا|ابحثوا|رددوا|أنجزوا|ناقشوا|اختاروا|أعيدوا|سجلوا|قارنوا|عبروا|حددوا|ركبوا|أكملوا|أتمموا|انطلقوا|تشاوروا|دونوا|هيا|أمامكم|لديكم|مرحبا|أحسنتم|ممتاز|أبنائي|أعزائي|من يذكرنا|من يقوم|هذه هي|هذه مسألتنا|في منازلكم|في المنزل|في منزلي|في هذه الحصة|في حصة اليوم|استعداد لذلك|سيفوز|صفقوا|أهنئكم)/;
 const ADDRESS_FR = /^(Maintenant|Nous allons|Je vais|Prenez|Regardez|[ÉE]coutez|[ÉE]crivez|Corrigez|Lisons|Qui veut|Bonjour|A demain|Vous allez|Voici|C'est|Il\/elle|Les élèves|L'élève)/i;
 
+/* عناصر كل مرحلة من بطاقات «خاص بالأستاذ / Réservé» التي تحمل اسم المرحلة */
+function stageCards(raw, stages){
+  const res = stages.map(()=>[]); let any = false;
+  for(const s2 of raw){
+    const marks = new Set();
+    s2.forEach(l => { const i = matchStageExact(l, stages); if(i>=0) marks.add(i); });
+    if(marks.size !== 1) continue;
+    const isCard = s2.some(l => /^(خاص بالأستاذ|Réservé|R.serv)/i.test(l));
+    const body = s2.filter(l => matchStageExact(l, stages) < 0 && !/^(خاص بالأستاذ|Réservé|R.serv)/i.test(l));
+    if(!isCard || !body.length || body.length > 6) continue;
+    const i = [...marks][0];
+    for(let t of body){
+      t = t.replace(/[؛;:\s]+$/,'').trim();
+      if(t.length < 4 || t.length > 90) continue;
+      if(/^[\d\s\/⏱]+$/.test(t) || NOISE.includes(t)) continue;
+      if(/^(Support|Déroulement|[ÉE]tape|Matériel|توجيهات|الوسائل)\b/i.test(t)) continue;
+      if(/^(مدى|النسبة المئوية|مستوى|جودة|التعثرات|يسجل|Les objectifs|Sinon|Que faudrait)/.test(t)) continue;
+      if(!res[i].some(x => norm(x) === norm(t))){ res[i].push(t); any = true; }
+    }
+  }
+  return any ? res : null;
+}
+
 /* عناصر كل مرحلة كما وردت في شريحة «هيكلة الحصة / Structure de la séance» */
 function structureItems(raw, stages, P){
   const shapes = raw.shapes || [];
@@ -480,19 +503,32 @@ function analyse(raw, subjectKey){
     if(goals.length) break;
   }
 
-  /* --- الوسائل --- */
+  /* --- الوسائل: تُفضَّل عدة المتعلم على عدة الأستاذ --- */
+  const freq0 = new Map();
+  raw.forEach(s2 => new Set(s2.map(norm)).forEach(n => freq0.set(n,(freq0.get(n)||0)+1)));
+  const TEACHER_KIT = ['المذكرة اليومية','الخطاطات الذهنية','الإعداد المادي','بطاقات الأنشطة'];
   const tools = [];
-  for(const s of raw){
-    if(!s.some(l => P.toolMarks.some(t => norm(l) === norm(t)))) continue;
-    for(const l of s){
-      if(P.toolMarks.some(t => norm(l) === norm(t))) continue;
-      if(l.length > 30 || l.length < 3) continue;
-      if(/^[\d\s\/⏱]+$/.test(l) || DUR_RE.test(l)) continue;
-      if(l.startsWith('خاص بالأستاذ') || NOISE.includes(l)) continue;
-      if(!tools.includes(l) && tools.length < 7) tools.push(l);
+  const grabTools = (pred, allowKit) => {
+    for(const s2 of raw){
+      if(!s2.some(pred)) continue;
+      const got = [];
+      for(const l of s2){
+        if(pred(l) || P.toolMarks.some(t => norm(l) === norm(t))) continue;
+        if(l.length > 30 || l.length < 3) continue;
+        if(/^[\d\s\/⏱]+$/.test(l) || DUR_RE.test(l)) continue;
+        if(l.startsWith('خاص بالأستاذ') || NOISE.includes(l)) continue;
+        if(P.stages.some(x => x.names.concat([x.title]).some(n => norm(n) === norm(l)))) continue;
+        if((freq0.get(norm(l))||0) >= 3) continue;
+        if(!allowKit && TEACHER_KIT.includes(l)) continue;
+        if(!got.includes(l) && got.length < 7) got.push(l);
+      }
+      if(got.length >= 2) return got;
     }
-    if(tools.length) break;
-  }
+    return [];
+  };
+  let t1 = grabTools(l => /العدة اللازمة|القمطر|ضعوا هذه الأدوات|Matériel|Supports/i.test(l), false);
+  if(!t1.length) t1 = grabTools(l => P.toolMarks.some(t => norm(l) === norm(t)), true);
+  t1.forEach(x => tools.push(x));
 
   /* --- المراحل --- */
   let detected = stagesFromStructure(raw, P);
@@ -589,23 +625,70 @@ function analyse(raw, subjectKey){
     });
   }
 
-  /* --- التجميع النهائي: عناصر شريحة الهيكلة هي الأساس --- */
-  const si = structureItems(raw, stages, P);
+  /* --- التجميع النهائي: بطاقات المراحل ثم شريحة الهيكلة ثم المتن --- */
+  const cards = stageCards(raw, stages);
+  const si    = structureItems(raw, stages, P);
   stages.forEach((st,i) => {
     const body = st.items.map((t,k) => ({t, s: st.scores[k]||0, k}));
     const vocabStage = i === 0 || /(معجم|vocab)/i.test(st.title);
     const words = vocabStage ? body.filter(o => WORDLIST(o.t)).slice(0,2).map(o => o.t) : [];
-    if(si && si[i] && si[i].length){
-      const extra = words.filter(t => !si[i].some(y => norm(y) === norm(t)));
-      st.items = si[i].concat(extra).slice(0,7);
+    let items = [];
+    const push = t => { if(t && !items.some(x => norm(x) === norm(t))) items.push(t); };
+    if(cards && cards[i]) cards[i].forEach(push);
+    if(si && si[i])       si[i].forEach(push);
+    if(items.length){
+      words.forEach(push);
+      st.items = items.slice(0,7);
     } else {
       body.sort((a,b) => b.s - a.s || a.k - b.k);
-      const keep = new Set(body.slice(0, si ? 4 : 6).map(o => o.k));
+      const keep = new Set(body.slice(0, (cards||si) ? 4 : 6).map(o => o.k));
       st.items = st.items.filter((_,k) => keep.has(k));
     }
     st.items = st.items.map(t => t.replace(/[؛;:\s]+$/,'').trim()).filter(Boolean);
+    const tail = x => { const n = norm(x); const i = n.indexOf(':'); return (i >= 0 ? n.slice(i+1) : n).trim(); };
+    st.items = st.items.filter((t,k) => !st.items.some((o,j) => j !== k &&
+      (norm(o).includes(norm(t)) || tail(o) === tail(t)) &&
+      (norm(o).length > norm(t).length || (norm(o).length === norm(t).length && j < k))));
+    st.items = st.items.slice(0,6);
     delete st.scores;
   });
+
+  /* --- تفكيك السطور المركّبة: «لعبة – الواجبات المنزلية – تبصر الحصة» --- */
+  stages.forEach(st => {
+    const out = [];
+    st.items.forEach(t => {
+      if(/(الواجبات|الواجب المنزلي|تبصر|Devoirs)/.test(t) && /\s[–—-]\s/.test(t)){
+        t.split(/\s[–—-]\s/).map(x=>x.trim()).filter(x=>x.length>2).forEach(x => out.push(x));
+      } else out.push(t);
+    });
+    st.items = out;
+  });
+
+  /* --- ترتيب المضامين: الواجبات واللعبة والتبصر في الاختتام --- */
+  if(stages.length >= 2){
+    const last = stages.length - 1;
+    const HOME = /(الواجبات المنزلية|الواجب المنزلي|في منزلي|Devoirs)/;
+    const GAME = /^(لعبة|لُعْبَة|Jeu)/;
+    const REFL = /(تبصر الحصة|Réflexions)/;
+    stages.forEach((st,i) => {
+      if(i === last) return;
+      const keep = [];
+      st.items.forEach(t => {
+        if(i === 0 && HOME.test(t)){ keep.push(/مراقبة/.test(t) ? t : 'مراقبة ' + t); return; }
+        if(HOME.test(t) || GAME.test(t) || REFL.test(t)){
+          if(!stages[last].items.some(x => norm(x) === norm(t))) stages[last].items.push(t);
+          return;
+        }
+        keep.push(t);
+      });
+      st.items = keep;
+    });
+    // حذف «لعبة» المجردة إذا وُجدت لعبة مسماة
+    const L = stages[last];
+    L.items = L.items.filter(t => !(/^(لعبة|لُعْبَة|Jeu)$/.test(t.trim()) &&
+      L.items.some(o => o !== t && /^(لعبة|لُعْبَة|Jeu)/.test(o.trim()))));
+    L.items = L.items.slice(0,6);
+  }
 
   return {
     subject: subjectKey, level, masar, unit, hissa,
