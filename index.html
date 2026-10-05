@@ -27,6 +27,7 @@ header p{font-size:12.5px;color:#bbb;margin-top:3px}
 input[type=file]{display:none}
 .btn{font-family:inherit;font-size:13.5px;font-weight:700;border:1px solid #111;background:#111;color:#fff;border-radius:8px;padding:8px 16px;cursor:pointer}
 .btn.ghost{background:#fff;color:#111}
+.btn.sw.sel{background:#111;color:#fff}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
@@ -51,6 +52,8 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1
 .page .info{position:absolute;top:40px;left:14px;right:14px;display:flex;justify-content:space-between;font-size:12.5px;border-top:1px solid #999;border-bottom:1px solid #999;padding:3px 10px}
 .page .info b{font-weight:800}
 .page svg.cn{position:absolute;inset:0;width:794px;height:1123px;z-index:0}
+.page.color .root{background:#0F172A;box-shadow:0 0 0 5px #fff,0 0 0 7px #0F172A}
+.page.color .lf{background:#fff}
 .page .root{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;background:#111;color:#fff;border-radius:22px;padding:14px 12px;text-align:center;width:186px;box-shadow:0 0 0 5px #fff,0 0 0 7px #111}
 .page .root .m{font-size:26px;font-weight:800;line-height:1.15}
 .page .root .s{font-size:13.5px;font-weight:700;margin-top:4px;color:#eee}
@@ -58,15 +61,15 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1
 .page .col{position:absolute;top:82px;bottom:40px;width:262px;display:flex;flex-direction:column;justify-content:space-around;z-index:2}
 .page .col.r{right:14px}
 .page .col.l{left:14px}
-.page .br{display:flex;flex-direction:column;gap:6px}
-.page .bh{background:#3a3a3a;color:#fff;font-weight:700;font-size:14px;padding:5px 15px;border-radius:999px;display:inline-flex;gap:9px;align-items:center;max-width:100%}
+.page .br{display:flex;flex-direction:column;gap:6px;--c:#3a3a3a}
+.page .bh{background:var(--c);color:#fff;font-weight:700;font-size:14px;padding:5px 15px;border-radius:999px;display:inline-flex;gap:9px;align-items:center;max-width:100%}
 .page .col.r .bh{align-self:flex-start}
 .page .col.l .bh{align-self:flex-end}
 .page[dir=ltr] .col.r .bh{align-self:flex-end}
 .page[dir=ltr] .col.l .bh{align-self:flex-start}
 .page .bh .t{white-space:nowrap;background:#fff;color:#111;border-radius:999px;padding:0 8px;font-size:11.5px;font-weight:800}
 .page .leaves{display:flex;flex-direction:column;gap:5px}
-.page .lf{background:#fff;border:1.4px solid #111;border-radius:9px;padding:4px 10px;font-size:12.5px;line-height:1.45;font-weight:600}
+.page .lf{background:#fff;border:1.4px solid var(--c);border-radius:9px;padding:4px 10px;font-size:12.5px;line-height:1.45;font-weight:600}
 .page .col.r .lf{margin-right:30px}
 .page .col.l .lf{margin-left:30px}
 .page .foot{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:10.5px;color:#777}
@@ -104,6 +107,13 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1
         </select>
       </div>
       <div><label>المستوى</label><input type="text" id="gLevel" placeholder="6"></div>
+      <div>
+        <label>شكل الخطاطة</label>
+        <select id="palette">
+          <option value="bw">أبيض وأسود</option>
+          <option value="color">ملوّنة</option>
+        </select>
+      </div>
     </div>
     <div class="drop" id="drop">
       <b>اسحب ملفات .pptx هنا أو انقر للاختيار</b>
@@ -129,6 +139,11 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1
 
   <div class="card noprint" id="actionsCard" style="display:none">
     <h2><span class="n">4</span> الإخراج</h2>
+    <div class="row" style="margin-bottom:10px">
+      <span style="font-size:12.5px;font-weight:700;color:var(--soft)">شكل الخطاطة:</span>
+      <button class="btn ghost sw sel" id="swBw" data-v="bw">⬜ أبيض وأسود</button>
+      <button class="btn ghost sw" id="swColor" data-v="color">🎨 ملوّنة</button>
+    </div>
     <div class="row">
       <button class="btn" id="render">توليد الخطاطات</button>
       <button class="btn ghost" id="print" disabled>طباعة / حفظ PDF</button>
@@ -369,6 +384,46 @@ function stagesFromStructure(raw, P){
   return null;
 }
 
+/* كل المدد الواردة لكل مرحلة في شرائح الهيكلة (قد تتكرر الشريحة بمدد مختلفة) */
+function durVariants(raw, P){
+  const m = new Map();
+  for(const s of raw){
+    if(!s.some(l => P.structMarks.some(x => norm(l).includes(norm(x))))) continue;
+    s.forEach((l,i) => {
+      if(!/⏱/.test(l)) return;
+      const name = (s[i-1]||'').trim(), dur = (s[i+1]||'').trim();
+      if(!name || !DUR_RE.test(dur)) return;
+      const k = norm(name);
+      if(!m.has(k)) m.set(k, []);
+      if(!m.get(k).includes(dur)) m.get(k).push(dur);
+    });
+  }
+  return m;
+}
+const numOf = s => { const m = (s||'').match(/\d+/); return m ? +m[0] : 0; };
+
+/* مسافة ليفنشتاين مختصرة للتخلص من التكرار شبه الحرفي */
+function lev(a,b){
+  if(a === b) return 0;
+  const m = a.length, n = b.length;
+  if(!m || !n) return m || n;
+  let prev = Array.from({length:n+1}, (_,j)=>j), cur = new Array(n+1);
+  for(let i=1;i<=m;i++){
+    cur[0] = i;
+    for(let j=1;j<=n;j++)
+      cur[j] = Math.min(prev[j]+1, cur[j-1]+1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    [prev, cur] = [cur, prev];
+  }
+  return prev[n];
+}
+const nearSame = (a,b) => {
+  const x = norm(a), y = norm(b);
+  if(!x || !y) return false;
+  const L = Math.max(x.length, y.length);
+  if(L < 8) return x === y;
+  return lev(x,y) <= Math.max(1, Math.round(L*0.12));
+};
+
 const WORDLIST = l => {
   const parts = l.split(/\s*[-–—/]\s*/).filter(Boolean);
   return parts.length >= 3 && l.length <= 90 && parts.every(p => p.split(/\s+/).length <= 3);
@@ -549,6 +604,24 @@ function analyse(raw, subjectKey){
     items: [], scores: []
   }));
 
+  /* --- تصحيح المدد الشاذة: شريحة الهيكلة قد تحمل خطأ مطبعيا (80 min عوض 30) --- */
+  (() => {
+    const vars = durVariants(raw, P);
+    stages.forEach(st => {
+      const vs = (vars.get(norm(st.title)) || []).filter(v => numOf(v) > 0);
+      if(vs.length < 2) return;
+      const others = stages.filter(o => o !== st).map(o => numOf(o.dur)).filter(Boolean);
+      const cap = others.length ? Math.max(...others) * 1.5 : Infinity;
+      if(numOf(st.dur) <= cap) return;
+      const alt = vs.map(numOf).filter(v => v <= cap).sort((a,b)=>b-a)[0];
+      if(alt) st.dur = vs.find(v => numOf(v) === alt);
+    });
+  })();
+  const durSum = stages.reduce((a,st) => a + numOf(st.dur), 0);
+  const durTotal = (durSum && stages.every(st => numOf(st.dur)))
+    ? durSum + ' ' + (P.totalDur.replace(/[\d\s]/g,'') || 'د')
+    : P.totalDur;
+
   /* --- أسطر شريط التنقل: عناوين مراحل ترد مرفوقة بعناوين أخرى في الشريحة نفسها --- */
   const labelSets = raw.map(s2 => {
     const set = new Set();
@@ -577,6 +650,10 @@ function analyse(raw, subjectKey){
 
   /* --- 1) التوزيع بالعناوين --- */
   const used = new Set();
+  const stagePages = stages.map(()=>new Set());
+  const stageDict  = stages.map(()=>[]);
+  const hwPages = new Set();
+  const PAGE_RE = () => isFr ? /\b(?:p\.|pages?)\s*:?\s*(\d{1,3})\b/gi : /(?:الصفحة|صفحة|ص)\s*:?\s*(\d{1,3})/g;
   let cur = -1;
   for(let i=0;i<endIdx;i++){
     const s2 = raw[i];
@@ -594,6 +671,26 @@ function analyse(raw, subjectKey){
     else if(fz.size >= 2) continue;
     if(i < startIdx) continue;
     if(cur < 0) cur = 0;
+    /* صفحات ومعطيات الإملاء */
+    const joined = s2.join('  ');
+    const pg = []; let mm; const re = PAGE_RE();
+    while((mm = re.exec(joined)) !== null) pg.push(mm[1]);
+    pg.forEach(x => stagePages[cur].add(x));
+    if(/(في منازلكم|في منزلي|الواجبات المنزلية|الواجب المنزلي|Devoirs|à la maison)/i.test(joined))
+      pg.forEach(x => hwPages.add(x));
+    const paren = joined.match(/(?:إملاء|إِمْلاء)[^:(]*[:：]?\s*\(([^)]{3,160})\)/);
+    if(paren) stageDict[cur] = paren[1].split(/[،,؛;\-–—]/).map(x=>x.trim()).filter(x=>x && x.length<22);
+    else {
+      s2.forEach((l,k) => {
+        const w = l.match(/^ا?ُ?كتبوا\s*:?\s*(.{1,22})$/);
+        if(w){ const t = w[1].replace(/[\.。]$/,'').trim(); if(t && !stageDict[cur].includes(t)) stageDict[cur].push(t); }
+        if(/Dict[ée]e/i.test(l)){
+          const cand = s2[k+1] || '';
+          if(WORDLIST(cand) && !stageDict[cur].length) stageDict[cur] = cand.split(/\s*[-–—]\s*/).map(x=>x.trim());
+        }
+      });
+    }
+
     const cl = cleanLines(s2);
     const headerSlide = (ex.size === 1 || fz.size === 1) && cl.length <= 6;
     for(const l of cl){
@@ -657,12 +754,60 @@ function analyse(raw, subjectKey){
   stages.forEach(st => {
     const out = [];
     st.items.forEach(t => {
-      if(/(الواجبات|الواجب المنزلي|تبصر|Devoirs)/.test(t) && /\s[–—-]\s/.test(t)){
+      if(/(الواجبات|الواجب المنزلي|تبصر|Devoirs|Dict[ée]e|إملاء)/i.test(t) && /\s[–—-]\s/.test(t)){
         t.split(/\s[–—-]\s/).map(x=>x.trim()).filter(x=>x.length>2).forEach(x => out.push(x));
       } else out.push(t);
     });
     st.items = out;
   });
+
+  /* --- إثراء: الإملاء وكلماته --- */
+  stages.forEach((st,i) => {
+    const w = stageDict[i].filter(Boolean).slice(0,8);
+    if(w.length < 2) return;
+    const label = (isFr ? 'Dictée : ' : 'إملاء: ') + w.join(' – ');
+    const k = st.items.findIndex(t => /(إملاء|Dict[ée]e)/i.test(t));
+    if(k >= 0) st.items[k] = st.items[k].replace(/\s*[:：].*$/,'') + ': ' + w.join(' – ');
+    else st.items.unshift(label);
+    const wn = w.map(x => norm(x)).join(' ');
+    st.items = st.items.filter((t,j) => j === k || !(WORDLIST(t) && norm(t).split(/\s+/).every(p => wn.includes(p))));
+  });
+
+  /* --- إثراء: مراجع الصفحات --- */
+  const pageWord = n => isFr ? ('Livret p. ' + n) : ('الكراسة ص ' + n);
+  stages.forEach((st,i) => {
+    const pages = [...stagePages[i]];
+    if(!pages.length) return;
+    const hasPage = st.items.some(t => /\d{1,3}/.test(t) && /(ص|صفحة|page|p\.)/i.test(t));
+    const k = st.items.findIndex(t => /(الكراسة|كراس|بطاقة الأنشطة|دفتر|livret|cahier)/i.test(t));
+    if(k >= 0 && !/\d/.test(st.items[k])) st.items[k] += ' ' + (isFr ? 'p. ' : 'ص ') + pages.slice(0,2).join(' - ');
+    else if(!hasPage && i >= 1 && i <= 2) st.items.push(pageWord(pages.slice(0,2).join(' - ')));
+  });
+
+  /* --- إثراء: صفحة الواجب المنزلي --- */
+  if(hwPages.size){
+    const last = stages.length - 1;
+    const k = stages[last].items.findIndex(t => /(الواجب|الواجبات|المنزلي|المنزلية|Devoirs|maison)/i.test(t));
+    const txt = (isFr ? ' — Livret p. ' : ' — الكراسة ص ') + [...hwPages].slice(0,2).join(' - ');
+    if(k >= 0 && !/\d/.test(stages[last].items[k])) stages[last].items[k] += txt;
+  }
+
+  /* --- إثراء: عنوان النص المقروء --- */
+  (() => {
+    let title = '';
+    const pick = l => { const m = l.match(/[«"]\s*([^»"]{4,60})\s*[»"]/); return m ? m[1].trim() : ''; };
+    for(const g of goals){ const t = pick(g); if(t){ title = t; break; } }
+    if(!title) for(const s2 of raw){ for(const l of s2){
+      if(!/(نصّ?|texte)/i.test(l)) continue;
+      const t = pick(l);
+      if(t && t.split(/\s+/).length >= 2 && t.split(/\s+/).length <= 8){ title = t; break; }
+    } if(title) break; }
+    if(!title) return;
+    const idx = stages.findIndex(st => /(قرائية|الرئيسي|قراءة|Lecture|lecture)/i.test(st.title));
+    const st = stages[idx >= 0 ? idx : 1];
+    if(st && !st.items.some(t => norm(t).includes(norm(title))))
+      st.items.unshift((isFr ? 'Texte : « ' : 'النص: «') + title + (isFr ? ' »' : '»'));
+  })();
 
   /* --- ترتيب المضامين: الواجبات واللعبة والتبصر في الاختتام --- */
   if(stages.length >= 2){
@@ -690,11 +835,39 @@ function analyse(raw, subjectKey){
     L.items = L.items.slice(0,6);
   }
 
+  /* --- إثراء: اسم اللعبة --- */
+  (() => {
+    let game = '';
+    for(const s2 of raw){ for(const l of s2){
+      const m = l.match(/(?:jeu|لعبة|لُعْبَة)[^«"]{0,16}[«"]\s*([^»"]{2,40})\s*[»"]/i);
+      if(m){ game = m[1].trim(); break; }
+    } if(game) break; }
+    if(!game) return;
+    const L = stages[stages.length-1];
+    const k = L.items.findIndex(t => /^(لعبة|لُعْبَة|Jeu)\b/i.test(t.trim()) && !/[«"]/.test(t));
+    const lbl = (isFr ? 'Jeu : « ' : 'لعبة: «') + game + (isFr ? ' »' : '»');
+    if(k >= 0 && norm(L.items[k]).length <= norm(game).length + 8) L.items[k] = lbl;
+    else if(!L.items.some(t => norm(t).includes(norm(game)))) L.items.push(lbl);
+  })();
+
+  /* --- تنقيح الصياغة وحذف التكرار شبه الحرفي --- */
+  stages.forEach(st => {
+    st.items = st.items.map(t => t
+      .replace(/^(?:Support|Supports|Déroulement|الدعامة|الدعامات)\s*[:：]\s*/i,'')
+      .replace(/^\d+\s*diapositives?\s*\(([^)]+)\)\s*$/i, (_,inner) => inner.charAt(0).toUpperCase()+inner.slice(1))
+      .replace(/^\d+\s*diapositives?\s*[:：]?\s*\(?([^)]+)\)?\s*$/i, (_,inner) => inner.charAt(0).toUpperCase()+inner.slice(1))
+      .replace(/\s{2,}/g,' ').trim()).filter(Boolean);
+    const tl = x => { const i = x.search(/[:：]/); return norm(i >= 0 ? x.slice(i+1) : x); };
+    st.items = st.items.filter((t,k) => !st.items.some((o,j) => j !== k &&
+      (nearSame(o,t) || nearSame(tl(o), tl(t))) &&
+      (norm(o).length > norm(t).length || (norm(o).length === norm(t).length && j < k))));
+  });
+
   return {
     subject: subjectKey, level, masar, unit, hissa,
     top: P.top(level || ($('gLevel') ? $('gLevel').value.trim() : '')),
     foot: stages.map(x => x.title).join(P.sep),
-    duree: P.totalDur,
+    duree: durTotal,
     goals: goals.length ? goals : ['…'],
     tools: tools.length ? tools : ['…'],
     stages
@@ -818,23 +991,28 @@ function renderEditor(){
 function buildPage(d){
   const P = PROFILES[d.subject];
   const ltr = P.dir === 'ltr';
-  const page = document.createElement('div'); page.className='page'; page.setAttribute('dir', P.dir);
+  const page = document.createElement('div');
+  page.className = 'page' + ($('palette').value === 'color' ? ' color' : '');
+  page.setAttribute('dir', P.dir);
   const esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
-  const br = (title,dur,items) => `
-    <div class="br">
+  const COLORS6 = ['#1F4E79','#0F766E','#B45309','#6D28D9','#B91C1C','#4E6E58'];
+  const colored = $('palette').value === 'color';
+  let ci = 0;
+  const br = (title,dur,items,cix) => `
+    <div class="br" style="--c:${colored ? COLORS6[(cix||0) % 6] : '#3a3a3a'}">
       <div class="bh">${esc(title)}${dur?`<span class="t">${esc(dur)}</span>`:''}</div>
       <div class="leaves">${items.map(x=>`<div class="lf">${esc(x)}</div>`).join('')}</div>
     </div>`;
 
   const st = d.stages;
-  const groupA = br((d.goalsTitle&&d.goalsTitle.t)||P.goalsTitle,'',d.goals)
-               + (st[0]?br(st[0].title,st[0].dur,st[0].items):'')
-               + (st[1]?br(st[1].title,st[1].dur,st[1].items):'');
-  const groupB = br((d.toolsTitle&&d.toolsTitle.t)||P.toolsTitle,'',d.tools)
-               + (st[2]?br(st[2].title,st[2].dur,st[2].items):'')
-               + (st[3]?br(st[3].title,st[3].dur,st[3].items):'')
-               + (st[4]?br(st[4].title,st[4].dur,st[4].items):'');
+  const groupA = br((d.goalsTitle&&d.goalsTitle.t)||P.goalsTitle,'',d.goals,0)
+               + (st[0]?br(st[0].title,st[0].dur,st[0].items,1):'')
+               + (st[1]?br(st[1].title,st[1].dur,st[1].items,2):'');
+  const groupB = br((d.toolsTitle&&d.toolsTitle.t)||P.toolsTitle,'',d.tools,5)
+               + (st[2]?br(st[2].title,st[2].dur,st[2].items,3):'')
+               + (st[3]?br(st[3].title,st[3].dur,st[3].items,4):'')
+               + (st[4]?br(st[4].title,st[4].dur,st[4].items,2):'');
 
   const teacher=$('gTeacher').value.trim(), school=$('gSchool').value.trim();
   const bits=[];
@@ -866,28 +1044,29 @@ function drawConnectors(page){
   const pb = page.getBoundingClientRect();
   const R = el => { const r = el.getBoundingClientRect();
     return {l:r.left-pb.left, r:r.right-pb.left, t:r.top-pb.top, b:r.bottom-pb.top, cy:r.top-pb.top+r.height/2}; };
-  const path = (d,w) => { const p=document.createElementNS(NS,'path');
-    p.setAttribute('d',d); p.setAttribute('fill','none'); p.setAttribute('stroke','#111');
+  const path = (d,w,col) => { const p=document.createElementNS(NS,'path');
+    p.setAttribute('d',d); p.setAttribute('fill','none'); p.setAttribute('stroke',col||'#111');
     p.setAttribute('stroke-width',w); p.setAttribute('stroke-linecap','round'); svg.appendChild(p); };
-  const dot = (x,y,r) => { const c=document.createElementNS(NS,'circle');
-    c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',r); c.setAttribute('fill','#111'); svg.appendChild(c); };
+  const dot = (x,y,r,col) => { const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',r); c.setAttribute('fill',col||'#111'); svg.appendChild(c); };
 
   const root = R(page.querySelector('.root'));
   page.querySelectorAll('.col').forEach(col => {
     const isR = col.classList.contains('r'), cb = R(col);
     col.querySelectorAll('.br').forEach(b => {
+      const col2 = (getComputedStyle(b).getPropertyValue('--c') || '#111').trim();
       const h = R(b.querySelector('.bh'));
       const hx = isR ? h.l : h.r, hy = h.cy, sx = isR ? root.r : root.l;
-      path(`M${sx},${root.cy} C${sx+(isR?60:-60)},${root.cy} ${hx-(isR?60:-60)},${hy} ${hx},${hy}`, 3);
+      path(`M${sx},${root.cy} C${sx+(isR?60:-60)},${root.cy} ${hx-(isR?60:-60)},${hy} ${hx},${hy}`, 3, col2);
       const spine = isR ? cb.r-14 : cb.l+14;
       let last = h.b;
       b.querySelectorAll('.lf').forEach(lf => {
         const l = R(lf), lx = isR ? l.r : l.l, ly = l.cy; last = ly;
         const k = isR ? -1 : 1;
-        path(`M${spine},${ly-10} Q${spine},${ly} ${spine+k*10},${ly} L${lx},${ly}`, 1.6);
-        dot(lx,ly,2.4);
+        path(`M${spine},${ly-10} Q${spine},${ly} ${spine+k*10},${ly} L${lx},${ly}`, 1.6, col2);
+        dot(lx,ly,2.4,col2);
       });
-      path(`M${spine},${h.b-2} L${spine},${last-10}`, 1.8);
+      path(`M${spine},${h.b-2} L${spine},${last-10}`, 1.8, col2);
     });
   });
 }
@@ -960,6 +1139,13 @@ async function handle(list){
 }
 
 $('render').onclick = renderAll;
+function setPalette(v){
+  $('palette').value = v;
+  document.querySelectorAll('.sw').forEach(b => b.classList.toggle('sel', b.dataset.v === v));
+  if(document.querySelector('.page')) renderAll();
+}
+$('palette').onchange = ()=> setPalette($('palette').value);
+document.querySelectorAll('.sw').forEach(b => b.onclick = ()=> setPalette(b.dataset.v));
 $('print').onclick = ()=> window.print();
 $('png').onclick = async ()=>{
   const pages=[...document.querySelectorAll('.page')];
