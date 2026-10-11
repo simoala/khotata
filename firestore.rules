@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Fiche d'autorisation de l'utilisateur connecté (collection "autorises", id = email en minuscules)
+    function fiche() {
+      return /databases/$(database)/documents/autorises/$(request.auth.token.email.lower());
+    }
+    function estAutorise() {
+      return request.auth != null && exists(fiche());
+    }
+    function estAdmin() {
+      return estAutorise() && get(fiche()).data.role == 'admin';
+    }
+
+    // Liste des comptes validés : lecture de sa propre fiche, gestion complète par l'admin
+    match /autorises/{email} {
+      allow read: if estAdmin()
+                  || (request.auth != null && request.auth.token.email.lower() == email);
+      allow write: if estAdmin();
+    }
+
+    // Séances : chaque enseignant validé ne voit et ne modifie que les siennes
+    match /utilisateurs/{uid}/seances/{seanceId} {
+      allow read, write: if estAutorise() && request.auth.uid == uid;
+    }
+  }
+}

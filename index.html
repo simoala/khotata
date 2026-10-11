@@ -8,40 +8,43 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: éditeur à gauche (formulaires), feuille A4 en aperçu à droite ; empilé sur téléphone. */
+/* Layout : écran de connexion centré ; puis éditeur à gauche, feuille A4 à droite (empilés sur téléphone). */
 :root{
   --bg:#F3F5F9; --panel:#FFFFFF; --fg:#1C2033; --muted:#5E6582; --line:#DCE1EC;
-  --accent:#2D63D6; --accent-ink:#FFFFFF; --soft:#EAF0FC; --danger:#C93A3A;
+  --accent:#2D63D6; --accent-ink:#FFFFFF; --soft:#EAF0FC; --danger:#C93A3A; --ok:#2E8B4A; --warn-bg:#FFF4D6; --warn-fg:#7A5300;
   --font:"Lexend","Segoe UI",Arial,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#12141C; --panel:#1B1E29; --fg:#E7E9F2; --muted:#9AA1BC; --line:#2C3142;
-  --accent:#6F98F2; --accent-ink:#0E1220; --soft:#222A40; --danger:#F07373; color-scheme:dark}}
+  --accent:#6F98F2; --accent-ink:#0E1220; --soft:#222A40; --danger:#F07373; --ok:#6CCB86; --warn-bg:#3A3018; --warn-fg:#F5D58A; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#12141C; --panel:#1B1E29; --fg:#E7E9F2; --muted:#9AA1BC; --line:#2C3142;
-  --accent:#6F98F2; --accent-ink:#0E1220; --soft:#222A40; --danger:#F07373; color-scheme:dark}
+  --accent:#6F98F2; --accent-ink:#0E1220; --soft:#222A40; --danger:#F07373; --ok:#6CCB86; --warn-bg:#3A3018; --warn-fg:#F5D58A; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px}
+[hidden]{display:none!important}
 button,input,textarea,select{font:inherit;color:inherit}
 .app{display:grid;grid-template-columns:minmax(320px,430px) 1fr;gap:16px;padding:16px;min-height:100%}
 .side{display:flex;flex-direction:column;gap:12px;min-width:0}
 .brand{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.01em}
 .brand h1 span{color:var(--accent)}
+.who{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
 .tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px}
-.tabs button{flex:1;border:0;background:transparent;padding:8px 6px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:500}
+.tabs button{flex:1;border:0;background:transparent;padding:8px 4px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:500;font-size:13px}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .card h2{font-size:13px;margin:0;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
-input[type=text],textarea,select{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;font-size:14px}
+input[type=text],input[type=email],input[type=password],textarea,select{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;font-size:14px}
 textarea{resize:vertical;line-height:1.5}
 input:focus,textarea:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:500}
 .btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.danger{color:var(--danger)}
 .btn.sm{padding:4px 8px;font-size:12px}
@@ -55,17 +58,31 @@ input:focus,textarea:focus,select:focus,button:focus-visible{outline:2px solid v
 .seg button{border:0;background:transparent;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--soft);color:var(--fg);font-weight:600}
 .hint{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
+.err{font-size:13px;color:var(--danger);margin:0}
+.okmsg{font-size:13px;color:var(--ok);margin:0}
 code{font-size:12px;background:var(--soft);padding:1px 5px;border-radius:4px}
 .lib-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.lib-item.cur{border-color:var(--accent)}
+.lib-item>div:first-child{min-width:0}
 .lib-item b{font-weight:600}
-.lib-item small{color:var(--muted);display:block}
+.lib-item small{color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--soft);color:var(--accent);font-weight:600}
 .main{display:flex;flex-direction:column;gap:12px;min-width:0}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .stage-wrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;justify-content:center;overflow:hidden}
-.stage{position:relative;flex:none}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.stage{position:relative;flex:none;overflow:hidden}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
 .toast.on{opacity:1}
 .note{font-size:12px;color:var(--muted)}
+.demo{background:var(--warn-bg);color:var(--warn-fg);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5}
+/* Connexion */
+.login-wrap{min-height:100%;display:grid;place-items:center;padding:24px 16px}
+.login{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:14px}
+.login h1{margin:0;font-size:24px;font-weight:700;text-wrap:balance}
+.login h1 span{color:var(--accent)}
+.login .mini{display:flex;gap:6px;margin-bottom:4px}
+.login .mini i{display:block;height:6px;flex:1;border-radius:3px}
+.loading{min-height:100%;display:grid;place-items:center;color:var(--muted)}
 @media (max-width:900px){.app{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
@@ -100,28 +117,49 @@ code{font-size:12px;background:var(--soft);padding:1px 5px;border-radius:4px}
 @media print{
   @page{size:A4;margin:0}
   html,body{background:#fff!important;height:auto}
-  .side,.toolbar,.toast{display:none!important}
+  .side,.toolbar,.toast,#login,#loading{display:none!important}
   .app{display:block;padding:0}
-  .stage-wrap{border:0;padding:0;background:#fff}
+  .stage-wrap{border:0;padding:0;background:#fff;border-radius:0}
   .stage{width:210mm!important;height:297mm!important}
   #page{transform:scale(.5615)!important}
 }
 </style>
 </head>
 <body>
-<div class="app">
+
+<div id="loading" class="loading">Chargement…</div>
+
+<!-- ===== Écran de connexion ===== -->
+<div id="login" class="login-wrap" hidden>
+  <form class="login" id="loginForm" novalidate>
+    <div class="mini" aria-hidden="true"><i style="background:#7550D8"></i><i style="background:#0E9384"></i><i style="background:#D8407A"></i><i style="background:#E8702A"></i><i style="background:#3F9A35"></i></div>
+    <h1>Cartes <span>mentales</span> de séance</h1>
+    <p class="hint">Accès réservé aux enseignants validés. Utilisez l'email et le mot de passe que l'administrateur vous a donnés.</p>
+    <label class="f">Email<input type="email" id="lgEmail" autocomplete="username" required></label>
+    <label class="f">Mot de passe<input type="password" id="lgPass" autocomplete="current-password" required></label>
+    <p class="err" id="lgErr" role="alert"></p>
+    <button class="btn primary" id="lgBtn" type="submit">Se connecter</button>
+    <button class="btn sm" id="lgReset" type="button">Mot de passe oublié</button>
+    <p class="okmsg" id="lgOk" role="status"></p>
+  </form>
+</div>
+
+<!-- ===== Application ===== -->
+<div class="app" id="app" hidden>
   <aside class="side">
     <div class="brand">
       <h1>Cartes <span>mentales</span> de séance</h1>
-      <span class="note" id="saveState">Enregistré</span>
+      <div class="who"><span id="whoName"></span><button class="btn sm" id="logout">Déconnexion</button></div>
     </div>
+    <div class="demo" id="demoBanner" hidden>Mode démo : Firebase n'est pas encore configuré. Il n'y a pas de connexion et les séances restent dans ce navigateur. Remplissez <code>firebase-config.js</code> pour activer les comptes.</div>
     <div class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="edit" id="tab-edit">Éditer</button>
       <button role="tab" aria-selected="false" data-tab="text" id="tab-text">Saisie rapide</button>
       <button role="tab" aria-selected="false" data-tab="lib" id="tab-lib">Mes séances</button>
+      <button role="tab" aria-selected="false" data-tab="admin" id="tab-admin" hidden>Utilisateurs</button>
     </div>
 
-    <section data-panel="edit" class="side" style="gap:12px">
+    <section data-panel="edit" class="side">
       <div class="card">
         <h2>En-tête</h2>
         <label class="f">Programme<input type="text" id="programme"></label>
@@ -147,7 +185,7 @@ code{font-size:12px;background:var(--soft);padding:1px 5px;border-radius:4px}
           <h2>Branches</h2>
           <button class="btn sm primary" id="addBranch">+ Ajouter une branche</button>
         </div>
-        <p class="hint">Une ligne = une case. Le déroulé en bas de page reprend, dans l'ordre, les branches qui ont une durée.</p>
+        <p class="hint">Une ligne = une case. Le déroulé en bas de page reprend, dans l'ordre, les branches qui ont une durée. <span id="sumInfo"></span></p>
         <div id="branches" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
     </section>
@@ -171,20 +209,51 @@ code{font-size:12px;background:var(--soft);padding:1px 5px;border-radius:4px}
     <section data-panel="lib" class="side" hidden>
       <div class="card">
         <h2>Mes séances</h2>
-        <p class="hint">Les séances sont gardées dans ce navigateur. Pour les transférer sur un autre ordinateur, utilisez « Exporter le fichier ».</p>
+        <p class="hint" id="libHint">Chaque modification est enregistrée automatiquement.</p>
         <div class="row">
-          <button class="btn primary" id="saveLib">Enregistrer cette séance</button>
-          <button class="btn" id="newMap">Nouvelle carte vide</button>
+          <button class="btn primary" id="newMap">Nouvelle carte</button>
+          <button class="btn" id="dupMap">Dupliquer la carte actuelle</button>
         </div>
+        <input type="text" id="libSearch" placeholder="Rechercher (titre, matière, niveau…)" aria-label="Rechercher une séance">
         <div id="libList" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
       <div class="card">
         <h2>Fichier</h2>
         <div class="row">
-          <button class="btn exp" id="exportJson">Exporter le fichier (.json)</button>
-          <label class="btn" for="importJson" style="display:inline-block">Importer un fichier</label>
+          <button class="btn" id="exportJson">Exporter la carte (.json)</button>
+          <label class="btn" for="importJson">Importer une carte</label>
           <input type="file" id="importJson" accept=".json,application/json" hidden>
         </div>
+      </div>
+    </section>
+
+    <section data-panel="admin" class="side" hidden>
+      <div class="card">
+        <h2>Valider un enseignant</h2>
+        <form id="adForm" novalidate style="display:flex;flex-direction:column;gap:8px">
+          <label class="f">Email<input type="email" id="adEmail" required></label>
+          <label class="f">Mot de passe à lui donner
+            <span class="row" style="flex-wrap:nowrap"><input type="text" id="adPass" required><button class="btn sm" type="button" id="adGen">Générer</button></span>
+          </label>
+          <div class="grid2">
+            <label class="f">Nom affiché<input type="text" id="adNom"></label>
+            <label class="f">École<input type="text" id="adEcole"></label>
+          </div>
+          <label class="f">Rôle
+            <select id="adRole"><option value="enseignant">Enseignant</option><option value="admin">Administrateur</option></select>
+          </label>
+          <p class="err" id="adErr" role="alert"></p>
+          <p class="okmsg" id="adOk" role="status"></p>
+          <div class="row">
+            <button class="btn primary" type="submit" id="adBtn">Créer et valider le compte</button>
+            <button class="btn" type="button" id="adCopy" hidden>Copier les identifiants</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2>Comptes validés</h2><span class="note" id="adCount"></span></div>
+        <p class="hint">« Retirer l'accès » bloque immédiatement le compte, même si la personne connaît son mot de passe.</p>
+        <div id="adList" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
     </section>
   </aside>
@@ -197,11 +266,11 @@ code{font-size:12px;background:var(--soft);padding:1px 5px;border-radius:4px}
           <button aria-pressed="true" data-style="couleur">Couleur</button>
           <button aria-pressed="false" data-style="nb">Noir et blanc</button>
         </div>
+        <span class="note" id="saveState"></span>
       </div>
       <div class="row">
-        <button class="btn exp" id="exportPng">Télécharger l'image (PNG)</button>
-        <button class="btn primary exp" id="printBtn">Imprimer / PDF</button>
-        <span class="note" id="expNote" hidden>Téléchargement et impression disponibles sur la version GitHub Pages.</span>
+        <button class="btn" id="exportPng">Télécharger l'image (PNG)</button>
+        <button class="btn primary" id="printBtn">Imprimer / PDF</button>
       </div>
     </div>
     <div class="stage-wrap" id="stageWrap">
@@ -212,16 +281,14 @@ code{font-size:12px;background:var(--soft);padding:1px 5px;border-radius:4px}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-const COLORS={
-  teal:"#0E9384", bleu:"#2F6FDB", violet:"#7550D8", rose:"#D8407A",
-  orange:"#E8702A", ambre:"#C98A0B", vert:"#3F9A35", rouge:"#CF3B33"
-};
+<script type="module">
+/* ================= Données de base ================= */
+const COLORS={teal:"#0E9384",bleu:"#2F6FDB",violet:"#7550D8",rose:"#D8407A",orange:"#E8702A",ambre:"#C98A0B",vert:"#3F9A35",rouge:"#CF3B33"};
 const INK="#22264A";
 const EXAMPLE={
   programme:"Programme de soutien des apprentissages fondamentaux",
   matiere:"Français", niveau:"Niveau 4", doc:"Carte mentale de la séance",
-  enseignant:"Mohamed Alaoui", ecole:"Mohamed El Hansali", date:"",
+  enseignant:"", ecole:"", date:"",
   titre:"Séance 5", soustitre:"Semaine 3 · Mes projets", duree:"70 min", style:"couleur",
   branches:[
     {t:"Objectifs",side:"L",c:"violet",items:["Parler de ses projets au futur simple","Comprendre le texte « Les vacances de Sofia »","Écrire des phrases correctes"]},
@@ -233,26 +300,54 @@ const EXAMPLE={
     {t:"Clôture",d:"10 min",side:"R",c:"vert",items:["Devoirs : relire le texte p. 125 et répondre aux questions","Qu'avons-nous appris aujourd'hui ?"]}
   ]
 };
+const BLANK=()=>({...structuredClone(EXAMPLE),titre:"Nouvelle séance",soustitre:"",duree:"",
+  enseignant:profile.nom||"",ecole:profile.ecole||"",branches:[
+  {t:"Objectifs",side:"L",c:"violet",items:[""]},{t:"Matériel",side:"R",c:"bleu",items:[""]},
+  {t:"Ouverture",d:"",side:"L",c:"ambre",items:[""]},{t:"Activités",d:"",side:"R",c:"rose",items:[""]},
+  {t:"Clôture",d:"",side:"R",c:"vert",items:[""]}]});
 const FIELDS=["programme","matiere","niveau","enseignant","ecole","doc","date","titre","duree","soustitre"];
-const store={
-  get(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}},
-  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
-};
-let data=store.get("cm-current",null)||structuredClone(EXAMPLE);
+
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function tint(hex,a){const n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;
-  const m=v=>Math.round(255-(255-v)*a);return `rgb(${m(r)},${m(g)},${m(b)})`}
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200)}
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function tint(hex,a){const n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;const m=v=>Math.round(255-(255-v)*a);return `rgb(${m(r)},${m(g)},${m(b)})`}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2600)}
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
 
-/* ---------- Rendu de la feuille ---------- */
+/* ================= État ================= */
+let data=structuredClone(EXAMPLE), currentId=null, seances=[], profile={}, user=null, DEMO=true, fb=null;
+
+/* ================= Stockage (Firestore ou navigateur) ================= */
+const db={
+  async list(){
+    if(DEMO)return ls.get("cm-demo-lib",[]);
+    const {collection,getDocs}=fb.fs;
+    const snap=await getDocs(collection(fb.db,"utilisateurs",user.uid,"seances"));
+    return snap.docs.map(d=>({id:d.id,data:d.data().data,updatedAt:d.data().updatedAt||0}));
+  },
+  async save(id,d){
+    const it={id,data:JSON.parse(JSON.stringify(d)),updatedAt:Date.now()};
+    const i=seances.findIndex(s=>s.id===id);i>=0?seances[i]=it:seances.unshift(it);
+    if(DEMO){return ls.set("cm-demo-lib",seances)}
+    const {doc,setDoc}=fb.fs;
+    await setDoc(doc(fb.db,"utilisateurs",user.uid,"seances",id),{data:it.data,updatedAt:it.updatedAt});
+    return true;
+  },
+  async remove(id){
+    seances=seances.filter(s=>s.id!==id);
+    if(DEMO)return ls.set("cm-demo-lib",seances);
+    const {doc,deleteDoc}=fb.fs;await deleteDoc(doc(fb.db,"utilisateurs",user.uid,"seances",id));
+  }
+};
+
+/* ================= Rendu de la feuille ================= */
 function colorOf(b){return data.style==="nb"?"#1d1d1d":(COLORS[b.c]||COLORS.teal)}
 function renderPage(){
-  const p=$("page"), d=data, nb=d.style==="nb";
-  const grp=(b)=>{const c=colorOf(b),bg=nb?"#fff":tint(c,.09);
+  const p=$("page"),d=data,nb=d.style==="nb";
+  const grp=b=>{const c=colorOf(b),bg=nb?"#fff":tint(c,.09);
     return `<div class="grp"><div class="pill" style="background:${nb?"#2b2b2b":c}">${esc(b.t)}${b.d?`<span class="dur" style="color:${nb?"#111":c}">${esc(b.d)}</span>`:""}</div>
-    <div class="items"><div class="rail" style="background:${c}"></div>${b.items.filter(x=>x.trim()).map(i=>`<div class="it" style="border-color:${c};background:${bg}"><span class="tick" style="background:${c}"></span>${esc(i)}</div>`).join("")}</div></div>`};
-  const L=d.branches.filter(b=>b.side!=="R"), R=d.branches.filter(b=>b.side==="R");
+    <div class="items"><div class="rail" style="background:${c}"></div>${(b.items||[]).filter(x=>x.trim()).map(i=>`<div class="it" style="border-color:${c};background:${bg}"><span class="tick" style="background:${c}"></span>${esc(i)}</div>`).join("")}</div></div>`};
+  const L=d.branches.filter(b=>b.side!=="R"),R=d.branches.filter(b=>b.side==="R");
   const flow=d.branches.filter(b=>b.d).map(b=>esc(b.t)).join(" → ");
   const ink=nb?"#111":INK;
   p.innerHTML=`<svg class="links"></svg>
@@ -262,43 +357,40 @@ function renderPage(){
   <div class="col R">${R.map(grp).join("")}</div>
   <div class="center" style="border-color:${ink}"><div class="in" style="background:${ink}"><div class="t">${esc(d.titre)}</div><div class="s">${esc(d.soustitre)}</div>${d.duree?`<div class="d">Durée : ${esc(d.duree)}</div>`:""}</div></div>
   <div class="foot">${flow}</div>`;
-  fit(); drawLinks();
+  fit();drawLinks();sumInfo();
 }
-function fit(){
-  const p=$("page");let k=1;p.style.setProperty("--k",k);
+function fit(){const p=$("page");let k=1;p.style.setProperty("--k",k);
   const over=()=>[...p.querySelectorAll(".col")].some(c=>c.scrollHeight>c.clientHeight+2);
-  while(over()&&k>.62){k-=.04;p.style.setProperty("--k",k.toFixed(2))}
-}
+  while(over()&&k>.62){k-=.04;p.style.setProperty("--k",k.toFixed(2))}}
 function off(el){let x=0,y=0,e=el;const p=$("page");while(e&&e!==p){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}return{x,y,w:el.offsetWidth,h:el.offsetHeight}}
 function drawLinks(){
-  const p=$("page"),c=off(p.querySelector(".center"));let s="";
+  const p=$("page"),c=off(p.querySelector(".center")),k=parseFloat(p.style.getPropertyValue("--k"))||1;let s="";
   p.querySelectorAll(".items").forEach(it=>{const r=it.querySelector(".rail"),its=it.querySelectorAll(".it");
-    if(!its.length){r.style.height="0";return}const last=its[its.length-1];
-    r.style.height=(last.offsetTop+last.offsetHeight/2+10*parseFloat(getComputedStyle(p).getPropertyValue("--k")))+"px"});
-  ["L","R"].forEach(side=>{
-    const grps=[...p.querySelectorAll(`.col.${side} .grp`)];
-    grps.forEach((g,i)=>{const pl=off(g.querySelector(".pill"));
-      const col=g.querySelector(".pill").style.background;
-      const left=side==="L";
-      const x1=left?c.x:c.x+c.w, y1=c.y+c.h*(.32+.36*(grps.length>1?i/(grps.length-1):.5));
-      const x2=left?pl.x+pl.w-46:pl.x+46, y2=pl.y+pl.h/2;
-      s+=`<path d="M${x1} ${y1} C${x1+(left?-160:160)} ${y1}, ${x2} ${y1+(y2-y1)*.3}, ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="3.5" stroke-linecap="round"/>`});
-  });
+    if(!its.length){r.style.height="0";return}const last=its[its.length-1];r.style.height=(last.offsetTop+last.offsetHeight/2+10*k)+"px"});
+  ["L","R"].forEach(side=>{const grps=[...p.querySelectorAll(`.col.${side} .grp`)];
+    grps.forEach((g,i)=>{const pe=g.querySelector(".pill"),pl=off(pe),col=pe.style.background,left=side==="L";
+      const x1=left?c.x:c.x+c.w,y1=c.y+c.h*(.32+.36*(grps.length>1?i/(grps.length-1):.5));
+      const x2=left?pl.x+pl.w-46:pl.x+46,y2=pl.y+pl.h/2;
+      s+=`<path d="M${x1} ${y1} C${x1+(left?-160:160)} ${y1}, ${x2} ${y1+(y2-y1)*.3}, ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="3.5" stroke-linecap="round"/>`})});
   p.querySelector("svg.links").innerHTML=s;
 }
-function scaleStage(){
-  const w=$("stageWrap").clientWidth-32, s=Math.min(1,w/1414);
-  $("stage").style.width=1414*s+"px";$("stage").style.height=2000*s+"px";
-  $("page").style.transform=`scale(${s})`;
-}
+function sumInfo(){const mins=data.branches.map(b=>parseInt(b.d)).filter(n=>!isNaN(n));const tot=mins.reduce((a,b)=>a+b,0);
+  const want=parseInt(data.duree);$("sumInfo").textContent=mins.length?`Total des durées : ${tot} min${!isNaN(want)&&want!==tot?` (durée annoncée : ${want} min)`:""}.`:""}
+function scaleStage(){const w=$("stageWrap").clientWidth-32,s=Math.max(.1,Math.min(1,w/1414));
+  $("stage").style.width=1414*s+"px";$("stage").style.height=2000*s+"px";$("page").style.transform=`scale(${s})`}
 
-/* ---------- Éditeur ---------- */
+/* ================= Éditeur ================= */
 let saveTimer;
+function setSave(t){$("saveState").textContent=t}
 function changed(rebuild){
   if(rebuild)buildBranches();
-  renderPage();
-  $("saveState").textContent="…";
-  clearTimeout(saveTimer);saveTimer=setTimeout(()=>{$("saveState").textContent=store.set("cm-current",data)?"Enregistré":"Non enregistré"},400);
+  renderPage();setSave("Enregistrement…");
+  clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,1200);
+}
+async function saveNow(){
+  if(!currentId)currentId=newId();
+  try{await db.save(currentId,data);setSave(DEMO?"Enregistré dans ce navigateur":"Enregistré en ligne");buildLib()}
+  catch(e){console.error(e);setSave("Échec de l'enregistrement");toast("Enregistrement impossible. Vérifiez la connexion internet.")}
 }
 function fillFields(){FIELDS.forEach(f=>$(f).value=data[f]||"");
   document.querySelectorAll("#styleSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.style===(data.style||"couleur")))}
@@ -310,7 +402,7 @@ function buildBranches(){
     el.innerHTML=`<div class="br-head">
       <input type="text" id="bt${i}" aria-label="Nom de la branche" value="${esc(b.t)}">
       <input type="text" id="bd${i}" aria-label="Durée" placeholder="Durée" value="${esc(b.d||"")}"></div>
-      <textarea id="bi${i}" rows="${Math.max(3,b.items.length+1)}" aria-label="Cases, une par ligne">${esc(b.items.join("\n"))}</textarea>
+      <textarea id="bi${i}" rows="${Math.max(3,(b.items||[]).length+1)}" aria-label="Cases, une par ligne">${esc((b.items||[]).join("\n"))}</textarea>
       <div class="row" style="justify-content:space-between">
         <div class="sw">${Object.entries(COLORS).map(([k,v])=>`<button title="${k}" aria-label="Couleur ${k}" aria-pressed="${b.c===k}" data-c="${k}" style="background:${v}"></button>`).join("")}</div>
         <div class="seg"><button data-side="L" aria-pressed="${b.side!=="R"}">Gauche</button><button data-side="R" aria-pressed="${b.side==="R"}">Droite</button></div>
@@ -326,96 +418,170 @@ function buildBranches(){
     el.querySelectorAll(".sw button").forEach(x=>x.onclick=()=>{b.c=x.dataset.c;changed(true)});
     el.querySelectorAll("[data-side]").forEach(x=>x.onclick=()=>{b.side=x.dataset.side;changed(true)});
     el.querySelectorAll("[data-mv]").forEach(x=>x.onclick=()=>{const j=i+ +x.dataset.mv;[data.branches[i],data.branches[j]]=[data.branches[j],data.branches[i]];changed(true)});
-    const del=el.querySelector("[data-del]");
-    del.onclick=()=>{if(del.dataset.armed){data.branches.splice(i,1);changed(true)}else{del.dataset.armed=1;del.textContent="Confirmer ?";setTimeout(()=>{if(del.isConnected){delete del.dataset.armed;del.textContent="Supprimer"}},2500)}};
+    armDelete(el.querySelector("[data-del]"),()=>{data.branches.splice(i,1);changed(true)});
     box.appendChild(el);
   });
 }
+function armDelete(btn,fn,label){const base=btn.textContent;btn.onclick=()=>{if(btn.dataset.armed){fn()}else{btn.dataset.armed=1;btn.textContent=label||"Confirmer ?";setTimeout(()=>{if(btn.isConnected){delete btn.dataset.armed;btn.textContent=base}},3000)}}}
 $("addBranch").onclick=()=>{const used=data.branches.map(b=>b.c);const c=Object.keys(COLORS).find(k=>!used.includes(k))||"teal";
-  const nL=data.branches.filter(b=>b.side!=="R").reduce((a,b)=>a+b.items.length+1,0),nR=data.branches.filter(b=>b.side==="R").reduce((a,b)=>a+b.items.length+1,0);
-  data.branches.push({t:"Nouvelle branche",d:"",side:nL<=nR?"L":"R",c,items:["Première case"]});changed(true)};
+  const w=s=>data.branches.filter(b=>(b.side==="R")===(s==="R")).reduce((a,b)=>a+(b.items||[]).length+1,0);
+  data.branches.push({t:"Nouvelle branche",d:"",side:w("L")<=w("R")?"L":"R",c,items:["Première case"]});changed(true)};
 document.querySelectorAll("#styleSeg button").forEach(b=>b.onclick=()=>{data.style=b.dataset.style;fillFields();changed()});
 
-/* ---------- Onglets ---------- */
+/* ================= Onglets ================= */
 document.querySelectorAll(".tabs button").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==t.dataset.tab);
   if(t.dataset.tab==="text"&&!$("quick").value)$("quick").value=toText();
   if(t.dataset.tab==="lib")buildLib();
+  if(t.dataset.tab==="admin")loadUsers();
 });
 
-/* ---------- Saisie rapide ---------- */
-function toText(){
-  let s=`${data.titre} | ${data.soustitre} | ${data.duree}\n`;
-  data.branches.forEach(b=>{s+=`\n## ${b.t}${b.d?" | "+b.d:""} | ${b.side==="R"?"droite":"gauche"}\n`+b.items.filter(x=>x.trim()).map(i=>"- "+i).join("\n")+"\n"});
-  return s;
-}
-function parseText(txt){
-  const lines=txt.split(/\r?\n/);const out=[];let head=null,cur=null;
-  for(let raw of lines){const l=raw.trim();if(!l)continue;
-    if(/^#{1,3}\s/.test(l)){const parts=l.replace(/^#+\s*/,"").split("|").map(s=>s.trim());
-      cur={t:parts[0],d:"",side:"",items:[]};
-      parts.slice(1).forEach(x=>{if(/^(gauche|g)$/i.test(x))cur.side="L";else if(/^(droite|d)$/i.test(x))cur.side="R";else if(x)cur.d=x});
-      out.push(cur)}
+/* ================= Saisie rapide ================= */
+function toText(){let s=`${data.titre} | ${data.soustitre} | ${data.duree}\n`;
+  data.branches.forEach(b=>{s+=`\n## ${b.t}${b.d?" | "+b.d:""} | ${b.side==="R"?"droite":"gauche"}\n`+(b.items||[]).filter(x=>x.trim()).map(i=>"- "+i).join("\n")+"\n"});return s}
+function parseText(txt){const out=[];let head=null,cur=null;
+  for(const raw of txt.split(/\r?\n/)){const l=raw.trim();if(!l)continue;
+    if(/^#{1,3}\s/.test(l)){const parts=l.replace(/^#+\s*/,"").split("|").map(s=>s.trim());cur={t:parts[0],d:"",side:"",items:[]};
+      parts.slice(1).forEach(x=>{if(/^(gauche|g)$/i.test(x))cur.side="L";else if(/^(droite|d)$/i.test(x))cur.side="R";else if(x)cur.d=x});out.push(cur)}
     else if(/^[-*•]\s*/.test(l)&&cur)cur.items.push(l.replace(/^[-*•]\s*/,""));
     else if(!out.length&&!head)head=l.split("|").map(s=>s.trim());
     else if(cur)cur.items.push(l)}
-  return{head,branches:out};
-}
-$("genQuick").onclick=()=>{
-  const r=parseText($("quick").value);
+  return{head,branches:out}}
+$("genQuick").onclick=()=>{const r=parseText($("quick").value);
   if(!r.branches.length){$("quickMsg").textContent="Aucune branche trouvée. Commencez chaque branche par « ## » suivi de son nom.";return}
   if(r.head){data.titre=r.head[0]||data.titre;data.soustitre=r.head[1]??"";data.duree=r.head[2]??""}
   const keys=Object.keys(COLORS);let nL=0,nR=0;
-  data.branches=r.branches.map((b,i)=>{const prev=data.branches.find(x=>x.t===b.t);
-    let side=b.side||(nL<=nR?"L":"R");const w=b.items.length+1.5;side==="L"?nL+=w:nR+=w;
+  data.branches=r.branches.map((b,i)=>{const prev=data.branches.find(x=>x.t===b.t);let side=b.side||(nL<=nR?"L":"R");const w=b.items.length+1.5;side==="L"?nL+=w:nR+=w;
     return{t:b.t,d:b.d,side,c:prev?prev.c:keys[i%keys.length],items:b.items}});
-  fillFields();changed(true);$("quickMsg").textContent=`Carte générée : ${data.branches.length} branches.`;toast("Carte générée");
-};
+  fillFields();changed(true);$("quickMsg").textContent=`Carte générée : ${data.branches.length} branches.`;toast("Carte générée")};
 $("fillQuick").onclick=()=>{$("quick").value=toText();$("quickMsg").textContent=""};
 
-/* ---------- Bibliothèque ---------- */
+/* ================= Mes séances ================= */
+function openSeance(s){currentId=s.id;data=structuredClone(s.data);fillFields();buildBranches();renderPage();$("quick").value="";setSave(DEMO?"Enregistré dans ce navigateur":"Enregistré en ligne");buildLib()}
 function buildLib(){
-  const lib=store.get("cm-lib",[]);const box=$("libList");
-  if(!lib.length){box.innerHTML=`<p class="hint">Aucune séance enregistrée pour l'instant. Cliquez sur « Enregistrer cette séance » pour garder la carte actuelle.</p>`;return}
-  box.innerHTML="";lib.forEach((it,i)=>{const el=document.createElement("div");el.className="lib-item";
-    el.innerHTML=`<div><b>${esc(it.data.titre)}</b><small>${esc(it.data.matiere)} · ${esc(it.data.niveau)} · ${esc(it.data.soustitre)}</small></div>
-    <div class="row"><button class="btn sm" data-open>Ouvrir</button><button class="btn sm danger" data-del>Supprimer</button></div>`;
-    el.querySelector("[data-open]").onclick=()=>{data=structuredClone(it.data);fillFields();changed(true);toast("Séance ouverte")};
-    const del=el.querySelector("[data-del]");del.onclick=()=>{if(del.dataset.armed){lib.splice(i,1);store.set("cm-lib",lib);buildLib()}else{del.dataset.armed=1;del.textContent="Confirmer ?"}};
+  const q=($("libSearch").value||"").toLowerCase().trim(),box=$("libList");
+  const list=[...seances].sort((a,b)=>b.updatedAt-a.updatedAt).filter(s=>!q||[s.data.titre,s.data.soustitre,s.data.matiere,s.data.niveau].join(" ").toLowerCase().includes(q));
+  if(!seances.length){box.innerHTML=`<p class="hint">Aucune séance pour l'instant. Cliquez sur « Nouvelle carte » pour commencer.</p>`;return}
+  if(!list.length){box.innerHTML=`<p class="hint">Aucune séance ne correspond à « ${esc(q)} ».</p>`;return}
+  box.innerHTML="";list.forEach(s=>{const el=document.createElement("div");el.className="lib-item"+(s.id===currentId?" cur":"");
+    const dt=new Date(s.updatedAt).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
+    el.innerHTML=`<div><b>${esc(s.data.titre)}</b> ${s.id===currentId?'<span class="badge">ouverte</span>':""}<small>${esc(s.data.matiere)} · ${esc(s.data.niveau)} · ${esc(s.data.soustitre)} · ${dt}</small></div>
+    <div class="row" style="flex-wrap:nowrap"><button class="btn sm" data-open ${s.id===currentId?"disabled":""}>Ouvrir</button><button class="btn sm danger" data-del>Supprimer</button></div>`;
+    el.querySelector("[data-open]").onclick=()=>{openSeance(s);toast("Séance ouverte")};
+    armDelete(el.querySelector("[data-del]"),async()=>{try{await db.remove(s.id);if(s.id===currentId){const n=seances[0];n?openSeance(n):await startNew()}buildLib();toast("Séance supprimée")}catch(e){toast("Suppression impossible")}});
     box.appendChild(el)});
 }
-$("saveLib").onclick=()=>{const lib=store.get("cm-lib",[]);
-  const k=`${data.matiere}|${data.niveau}|${data.titre}|${data.soustitre}`;
-  const i=lib.findIndex(x=>`${x.data.matiere}|${x.data.niveau}|${x.data.titre}|${x.data.soustitre}`===k);
-  const it={data:structuredClone(data),at:Date.now()};i>=0?lib[i]=it:lib.unshift(it);
-  toast(store.set("cm-lib",lib)?"Séance enregistrée":"Impossible d'enregistrer dans ce navigateur");buildLib()};
-$("newMap").onclick=()=>{data={...structuredClone(EXAMPLE),titre:"Séance",soustitre:"",duree:"",branches:[
-  {t:"Objectifs",side:"L",c:"violet",items:[""]},{t:"Matériel",side:"R",c:"bleu",items:[""]},
-  {t:"Ouverture",d:"",side:"L",c:"ambre",items:[""]},{t:"Activités",d:"",side:"R",c:"rose",items:[""]},
-  {t:"Clôture",d:"",side:"R",c:"vert",items:[""]}]};fillFields();changed(true);$("quick").value="";toast("Nouvelle carte")};
+$("libSearch").oninput=buildLib;
+async function startNew(d){clearTimeout(saveTimer);currentId=newId();data=d||BLANK();fillFields();buildBranches();renderPage();$("quick").value="";await saveNow();buildLib()}
+$("newMap").onclick=()=>{startNew();toast("Nouvelle carte créée")};
+$("dupMap").onclick=()=>{const d=structuredClone(data);d.titre=d.titre+" (copie)";startNew(d);toast("Copie créée")};
 
-/* ---------- Exports ---------- */
+/* ================= Exports ================= */
 function download(name,blob){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 const fname=ext=>`carte-${(data.matiere+"-"+data.niveau+"-"+data.titre).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}.${ext}`;
 $("exportJson").onclick=()=>download(fname("json"),new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
 $("importJson").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.branches))throw 0;data=d;fillFields();changed(true);toast("Fichier importé")}catch(_){toast("Ce fichier n'est pas une carte valide")}};r.readAsText(f);e.target.value=""};
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.branches))throw 0;startNew(d);toast("Carte importée")}catch(_){toast("Ce fichier n'est pas une carte valide")}};r.readAsText(f);e.target.value=""};
 $("exportPng").onclick=async()=>{
   if(!window.html2canvas){toast("Le module d'image n'a pas pu se charger. Vérifiez la connexion.");return}
-  const p=$("page"),t=p.style.transform;p.style.transform="none";
-  try{const cv=await html2canvas(p,{scale:1.7,backgroundColor:"#fff",width:1414,height:2000,windowWidth:1414});
-    cv.toBlob(b=>download(fname("png"),b),"image/png")}
-  finally{p.style.transform=t}
-};
+  const p=$("page"),st=$("stage"),t=p.style.transform,ov=st.style.overflow;p.style.transform="none";st.style.overflow="visible";
+  try{const cv=await html2canvas(p,{scale:1.7,backgroundColor:"#fff",width:1414,height:2000,windowWidth:1414});cv.toBlob(b=>download(fname("png"),b),"image/png")}
+  finally{p.style.transform=t;st.style.overflow=ov}};
 $("printBtn").onclick=()=>window.print();
-if(window.self!==window.top){document.querySelectorAll(".exp").forEach(b=>b.hidden=true);$("expNote").hidden=false}
 
-/* ---------- Démarrage ---------- */
-fillFields();buildBranches();scaleStage();
-(document.fonts?document.fonts.ready:Promise.resolve()).then(renderPage);
-renderPage();
-addEventListener("resize",scaleStage);
+/* ================= Administration ================= */
+function genPass(){const a="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";const v=crypto.getRandomValues(new Uint32Array(10));return [...v].map(x=>a[x%a.length]).join("")}
+$("adGen").onclick=()=>{$("adPass").value=genPass()};
+let lastCreds="";
+$("adForm").onsubmit=async e=>{e.preventDefault();$("adErr").textContent="";$("adOk").textContent="";$("adCopy").hidden=true;
+  const email=$("adEmail").value.trim().toLowerCase(),pass=$("adPass").value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$("adErr").textContent="Saisissez un email valide.";return}
+  if(pass.length<6){$("adErr").textContent="Le mot de passe doit faire au moins 6 caractères. Cliquez sur « Générer » pour en créer un.";return}
+  if(DEMO){$("adErr").textContent="La création de comptes fonctionne une fois Firebase configuré.";return}
+  $("adBtn").disabled=true;let existed=false;
+  try{
+    const {createUserWithEmailAndPassword,signOut}=fb.auth;
+    try{await createUserWithEmailAndPassword(fb.auth2,email,pass);await signOut(fb.auth2)}
+    catch(err){if(err.code==="auth/email-already-in-use")existed=true;else throw err}
+    const {doc,setDoc}=fb.fs;
+    await setDoc(doc(fb.db,"autorises",email),{nom:$("adNom").value.trim(),ecole:$("adEcole").value.trim(),role:$("adRole").value,valideLe:Date.now(),validePar:user.email});
+    lastCreds=`Cartes mentales de séance\nAdresse : ${location.origin+location.pathname}\nEmail : ${email}\nMot de passe : ${existed?"(inchangé)":pass}`;
+    $("adOk").textContent=existed?"Ce compte existait déjà : son accès est réactivé avec son ancien mot de passe.":"Compte créé et validé. Donnez-lui son email et son mot de passe.";
+    $("adCopy").hidden=false;$("adForm").reset();loadUsers();
+  }catch(err){console.error(err);$("adErr").textContent=authMsg(err)}
+  finally{$("adBtn").disabled=false}};
+$("adCopy").onclick=async()=>{try{await navigator.clipboard.writeText(lastCreds);toast("Identifiants copiés")}catch(e){toast("Copie impossible : sélectionnez le texte à la main")}};
+async function loadUsers(){
+  const box=$("adList");if(DEMO){box.innerHTML=`<p class="hint">La liste des comptes apparaît une fois Firebase configuré.</p>`;return}
+  box.innerHTML=`<p class="hint">Chargement…</p>`;
+  try{const {collection,getDocs}=fb.fs;const snap=await getDocs(collection(fb.db,"autorises"));
+    const rows=snap.docs.map(d=>({email:d.id,...d.data()})).sort((a,b)=>a.email.localeCompare(b.email));
+    $("adCount").textContent=`${rows.length} compte${rows.length>1?"s":""}`;box.innerHTML="";
+    rows.forEach(u=>{const el=document.createElement("div");el.className="lib-item";const me=u.email===user.email.toLowerCase();
+      el.innerHTML=`<div><b>${esc(u.nom||u.email)}</b> ${u.role==="admin"?'<span class="badge">admin</span>':""}<small>${esc(u.email)}${u.ecole?" · "+esc(u.ecole):""}</small></div>
+      <div class="row" style="flex-wrap:nowrap"><button class="btn sm" data-reset>Lien mot de passe</button>${me?"":`<button class="btn sm danger" data-del>Retirer l'accès</button>`}</div>`;
+      el.querySelector("[data-reset]").onclick=async()=>{try{await fb.auth.sendPasswordResetEmail(fb.authMain,u.email);toast("Email de réinitialisation envoyé à "+u.email)}catch(e){toast(authMsg(e))}};
+      const del=el.querySelector("[data-del]");if(del)armDelete(del,async()=>{try{const {doc,deleteDoc}=fb.fs;await deleteDoc(doc(fb.db,"autorises",u.email));toast("Accès retiré");loadUsers()}catch(e){toast("Impossible de retirer l'accès")}},"Confirmer le retrait");
+      box.appendChild(el)});
+  }catch(e){console.error(e);box.innerHTML=`<p class="err">Impossible de charger les comptes. Vérifiez que les règles Firestore sont bien publiées.</p>`}
+}
+
+/* ================= Connexion ================= */
+function authMsg(e){const c=e&&e.code||"";return({
+  "auth/invalid-credential":"Email ou mot de passe incorrect.","auth/wrong-password":"Email ou mot de passe incorrect.","auth/user-not-found":"Email ou mot de passe incorrect.",
+  "auth/invalid-email":"Cet email n'est pas valide.","auth/user-disabled":"Ce compte a été désactivé. Contactez l'administrateur.",
+  "auth/too-many-requests":"Trop de tentatives. Patientez quelques minutes puis réessayez.","auth/network-request-failed":"Pas de connexion internet.",
+  "auth/weak-password":"Mot de passe trop faible (6 caractères minimum).","auth/operation-not-allowed":"La connexion par email n'est pas activée dans Firebase (Authentication > Méthode de connexion).",
+  "permission-denied":"Action refusée par les règles Firestore."
+})[c]||("Erreur : "+(e&&e.message||e))}
+$("loginForm").onsubmit=async e=>{e.preventDefault();$("lgErr").textContent="";$("lgOk").textContent="";
+  const em=$("lgEmail").value.trim(),pw=$("lgPass").value;
+  if(!em||!pw){$("lgErr").textContent="Saisissez votre email et votre mot de passe.";return}
+  $("lgBtn").disabled=true;$("lgBtn").textContent="Connexion…";
+  try{await fb.auth.signInWithEmailAndPassword(fb.authMain,em,pw)}catch(err){$("lgErr").textContent=authMsg(err)}
+  finally{$("lgBtn").disabled=false;$("lgBtn").textContent="Se connecter"}};
+$("lgReset").onclick=async()=>{$("lgErr").textContent="";$("lgOk").textContent="";const em=$("lgEmail").value.trim();
+  if(!em){$("lgErr").textContent="Saisissez d'abord votre email, puis cliquez de nouveau sur « Mot de passe oublié ».";return}
+  try{await fb.auth.sendPasswordResetEmail(fb.authMain,em);$("lgOk").textContent="Si ce compte existe, un email de réinitialisation vient d'être envoyé."}catch(err){$("lgErr").textContent=authMsg(err)}};
+$("logout").onclick=async()=>{if(DEMO)return;clearTimeout(saveTimer);await fb.auth.signOut(fb.authMain)};
+
+function show(which){$("loading").hidden=which!=="loading";$("login").hidden=which!=="login";$("app").hidden=which!=="app";if(which==="app")scaleStage()}
+
+async function enterApp(){
+  $("whoName").textContent=DEMO?"Mode démo":(profile.nom||user.email);
+  $("logout").hidden=DEMO;$("demoBanner").hidden=!DEMO;
+  $("tab-admin").hidden=!(DEMO||profile.role==="admin");
+  $("libHint").textContent=DEMO?"Mode démo : les séances sont gardées dans ce navigateur.":"Chaque modification est enregistrée en ligne. Vous retrouvez vos séances sur n'importe quel appareil.";
+  show("app");
+  try{seances=await db.list()}catch(e){console.error(e);seances=[];toast("Impossible de charger vos séances.")}
+  if(seances.length){openSeance([...seances].sort((a,b)=>b.updatedAt-a.updatedAt)[0])}
+  else{const d=structuredClone(EXAMPLE);d.enseignant=profile.nom||"";d.ecole=profile.ecole||"";await startNew(d)}
+}
+
+/* ================= Démarrage ================= */
+addEventListener("resize",()=>{if(!$("app").hidden)scaleStage()});
+(async()=>{
+  let cfg=null;
+  try{cfg=(await import("./firebase-config.js")).firebaseConfig}catch(e){cfg=null}
+  DEMO=!cfg||!cfg.apiKey||cfg.apiKey==="A_REMPLACER";
+  if(DEMO){profile={nom:"",ecole:"",role:"admin"};await enterApp();return}
+  try{
+    const V="10.12.2",base=`https://www.gstatic.com/firebasejs/${V}/`;
+    const [appM,authM,fsM]=await Promise.all([import(base+"firebase-app.js"),import(base+"firebase-auth.js"),import(base+"firebase-firestore.js")]);
+    const app=appM.initializeApp(cfg),app2=appM.initializeApp(cfg,"admin-creation");
+    fb={auth:authM,fs:fsM,authMain:authM.getAuth(app),auth2:authM.getAuth(app2),db:fsM.getFirestore(app)};
+    authM.setPersistence(fb.auth2,authM.inMemoryPersistence).catch(()=>{});
+  }catch(e){console.error(e);$("loading").textContent="Impossible de charger le service de connexion. Vérifiez votre connexion internet puis rechargez la page.";return}
+  fb.auth.onAuthStateChanged(fb.authMain,async u=>{
+    if(!u){user=null;profile={};show("login");return}
+    show("loading");
+    try{const snap=await fb.fs.getDoc(fb.fs.doc(fb.db,"autorises",u.email.toLowerCase()));
+      if(!snap.exists()){await fb.auth.signOut(fb.authMain);show("login");$("lgErr").textContent="Ce compte n'est pas (ou plus) validé. Contactez l'administrateur.";return}
+      user=u;profile=snap.data();await enterApp();
+    }catch(e){console.error(e);await fb.auth.signOut(fb.authMain);show("login");$("lgErr").textContent="Accès refusé. Ce compte n'est pas validé par l'administrateur."}
+  });
+})();
 </script>
 </body>
 </html>
